@@ -1,3 +1,11 @@
+# 当前状态（双仓库源代码迁移已验真）
+
+LifeOS 与 LifeOS-DevTeam 均为 dabinglei2-hash 的独立 Public 仓库。产品 PR #5（162ab01f）、研发 PR #1（63d9278f）已真实 CI 和原生 Auto-merge，独立四角色、MAIN-ACK、文档/知识与幂等门禁经过实际验证。原项目的 HEAD、工作区和 index 保留；业务数据及格式不变。
+
+本轮最终报告与证据内容已整理，文档交付继续通过正常 PR 门禁。详情与限制见 [迁移报告](DUAL_REPOSITORY_MIGRATION_REPORT.md)：专用最小权限 GitHub App、真实部署、全部物理运行根外移、新根原生 Hook/MCP 和真机验收尚未完成，不能标为通过。
+
+## 历史阶段记录（按原冻结时点保留）
+
 # 研发团队当前状态
 
 2026-11-12：双仓库迁移候选已建立，原仓库和用户数据未修改。实际测试与未完成项见 [迁移报告](DUAL_REPOSITORY_MIGRATION_REPORT.md)。独立发布门禁保持关闭，尚未宣称新仓库 CI/PR 自动合并成功。

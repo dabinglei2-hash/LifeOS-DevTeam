@@ -1,0 +1,154 @@
+{
+  "schema": "lads-dual-repository-final-evidence-v1",
+  "source_migration_completed": true,
+  "evidence_frozen_at_utc": "2026-11-13T15:55:58.228524+00:00",
+  "repositories": {
+    "lifeos": {
+      "repository": "dabinglei2-hash/LifeOS",
+      "owner": "dabinglei2-hash",
+      "owner_type": "User",
+      "visibility": "public",
+      "source_commit": "65bf20dcb99adaed48f9b45f7cf5b9067183ec02",
+      "source_merge": "162ab01f71226320026494e1b17f8fa6e49c70f5",
+      "pr": "https://github.com/dabinglei2-hash/LifeOS/pull/5",
+      "postmerge_checks": [
+        {
+          "name": "readiness",
+          "status": "completed",
+          "conclusion": "failure",
+          "html_url": "https://github.com/dabinglei2-hash/LifeOS/actions/runs/43443697166/job/131947537928"
+        },
+        {
+          "name": "LADS Docs / docs",
+          "status": "completed",
+          "conclusion": "success",
+          "html_url": "https://github.com/dabinglei2-hash/LifeOS/actions/runs/43443555081/job/131947052176"
+        },
+        {
+          "name": "LADS Security / security",
+          "status": "completed",
+          "conclusion": "success",
+          "html_url": "https://github.com/dabinglei2-hash/LifeOS/actions/runs/43443555011/job/131947051906"
+        },
+        {
+          "name": "LADS CI / ci",
+          "status": "completed",
+          "conclusion": "success",
+          "html_url": "https://github.com/dabinglei2-hash/LifeOS/actions/runs/43443555144/job/131947051833"
+        }
+      ],
+      "protection_unchanged": true,
+      "source_tracked_files": 136
+    },
+    "devteam": {
+      "repository": "dabinglei2-hash/LifeOS-DevTeam",
+      "owner": "dabinglei2-hash",
+      "owner_type": "User",
+      "visibility": "public",
+      "source_commit": "aa6ffc7ca9c2954dae766d41bbc7b3c396407812",
+      "source_merge": "63d9278f7c9958699d17c7cab62c0d96d3a27eb8",
+      "pr": "https://github.com/dabinglei2-hash/LifeOS-DevTeam/pull/1",
+      "postmerge_checks": [
+        {
+          "name": "LADS Security / security",
+          "status": "completed",
+          "conclusion": "success",
+          "html_url": "https://github.com/dabinglei2-hash/LifeOS-DevTeam/actions/runs/43454571021/job/131985188489"
+        },
+        {
+          "name": "LADS Docs / docs",
+          "status": "completed",
+          "conclusion": "success",
+          "html_url": "https://github.com/dabinglei2-hash/LifeOS-DevTeam/actions/runs/43454571085/job/131985188095"
+        },
+        {
+          "name": "LADS CI / ci",
+          "status": "completed",
+          "conclusion": "success",
+          "html_url": "https://github.com/dabinglei2-hash/LifeOS-DevTeam/actions/runs/43454570934/job/131985187329"
+        },
+        {
+          "name": "LADS build / build",
+          "status": "completed",
+          "conclusion": "success",
+          "html_url": "https://github.com/dabinglei2-hash/LifeOS-DevTeam/actions/runs/43454570941/job/131985187120"
+        }
+      ],
+      "ruleset": 27133373,
+      "ruleset_unchanged": true,
+      "source_tracked_files": 150
+    }
+  },
+  "independent_tasks": [
+    {
+      "project": "lifeos",
+      "task_id": "f1b9ba0f-f123-480b-a402-a76568fa7c00",
+      "candidate_sha256": "6c000eff2750ccbfc751adbf412b66db65cbb7be1d20ad63044ee4a451c87387",
+      "qa": "PASS",
+      "final_reviewer": "APPROVED",
+      "accepted_role_runs": 5,
+      "connection_failure_preserved": 1
+    },
+    {
+      "project": "devteam",
+      "task_id": "b8fc0fe9-92d2-41cf-a2bd-cf1f95af49de",
+      "candidate_sha256": "733febae71fe949431a2237832af23ec533eccd920b6bd2e1a377309b0377df5",
+      "qa": "PASS",
+      "final_reviewer": "APPROVED",
+      "accepted_role_runs": 5
+    }
+  ],
+  "models": {
+    "controller": "OpenAI/gpt-6-astra existing login unchanged",
+    "workers": "lifeos_deepseek/deepseek-flash",
+    "native_gpt_subagents_used": false,
+    "silent_fallback": false
+  },
+  "local_tests": {
+    "acceptance_source": "actual restricted RPC and independent CLI metadata",
+    "automation": 255,
+    "knowledge": 38,
+    "lads": 89,
+    "failed": 0,
+    "skipped": 0,
+    "product_browser": 14,
+    "broker_pass": 31,
+    "broker_not_implemented": 3,
+    "physical_iphone_tested": false,
+    "user_data_used": false
+  },
+  "backups": {
+    "original_files_sha_verified": 20815,
+    "git_bundle_verified": true,
+    "original_git_head_index_status_unchanged": true,
+    "blocked_runs_archived": 4,
+    "archived_files_verified": 619,
+    "real_browser_json_backup_accessed": false
+  },
+  "engineering_knowledge": {
+    "database_relative_to_workspace": "knowledge/dual-repository.sqlite3",
+    "schema": "0002",
+    "fts5": true,
+    "original_entity_ids_preserved": true,
+    "project_ids": {
+      "lifeos": "b64ec23c-dd38-528c-9827-d72127513caa",
+      "devteam": "ebc8cefb-1f79-5193-bbfb-0ac069f9ee71"
+    },
+    "git_tracked": false,
+    "new_private_backup_and_knowledge_directory_acl": "current controller user, Administrators, SYSTEM only"
+  },
+  "runtime_locations": {
+    "externalized": "knowledge DB, composite QA and full backups in LADS-Workspace",
+    "retained": "ignored per-repository work/lads/runs controls and existing user-level Stage3/4 journals; not all physically relocated"
+  },
+  "authorization_limits": {
+    "dedicated_minimal_github_app": "PENDING_USER_ACCOUNT_CONFIGURATION",
+    "current_publish_auth": "existing gh login, not claimed as a newly minimized App",
+    "github_actions_token": "contents:read",
+    "mcp": "disabled, unverified",
+    "native_hooks_in_new_roots": "not revalidated",
+    "production_deployment": "NOT_PERFORMED_NO_TARGET",
+    "staging_readiness": "EXPECTED_BLOCKED_NO_TARGET"
+  },
+  "documentation_delivery": "This snapshot proves initial source migrations; the final report is delivered by a subsequent reviewed documentation PR, not a self-referential commit claim."
+}

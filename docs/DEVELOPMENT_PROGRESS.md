@@ -1,3 +1,11 @@
+# 当前状态（双仓库源代码迁移已验真）
+
+LifeOS 与 LifeOS-DevTeam 均为 dabinglei2-hash 的独立 Public 仓库。产品 PR #5（162ab01f）、研发 PR #1（63d9278f）已真实 CI 和原生 Auto-merge，独立四角色、MAIN-ACK、文档/知识与幂等门禁经过实际验证。原项目的 HEAD、工作区和 index 保留；业务数据及格式不变。
+
+本轮最终报告与证据内容已整理，文档交付继续通过正常 PR 门禁。详情与限制见 [迁移报告](DUAL_REPOSITORY_MIGRATION_REPORT.md)：专用最小权限 GitHub App、真实部署、全部物理运行根外移、新根原生 Hook/MCP 和真机验收尚未完成，不能标为通过。
+
+## 历史阶段记录（按原冻结时点保留）
+
 # 研发团队开发进度
 
 本轮由 GPT/Codex 主控实施迁移；reviewer_independent=false。本地构建、测试、API 连通、GitHub CI、合并和部署分别记载，不互相替代。历史证据保存在原项目及私有备份。
@@ -42,5 +50,18 @@ Git仓库内容分离与物理运行目录外移是两件事。新增强制跟�
 - summary: "Stage 3 delivery event: task_state_changed"
 - reason: "User-authorized main-authored dual-repository engineering migration, independently reviewed complete baseline and ACK. Actual v3 QA passed 255 automation, 38 knowledge, 89 LADS and product broker checks; account authentication and AI remain unimplemented. Private runtime locations are explicitly documented without claiming physical relocation. Product PR5 merged; DevTeam publication not yet performed. Original failed attempts remain blocked and archived."
 - details: "{\"candidate_sha256\":\"733febae71fe949431a2237832af23ec533eccd920b6bd2e1a377309b0377df5\",\"changed_files\":[\"docs/MIGRATION_ACK.md\"],\"changed_files_count\":1,\"changed_files_sha256\":\"4aad177b74e771a90935ac4d6657b1087ef7dd1bc1d2d12fcd3a32e389f51c26\",\"dirty\":true,\"observed_head\":\"2c27792a33c31363d1a5fb627bf1d36aa34f9fbe\",\"qa_contract_version\":3,\"reason\":\"User-authorized main-authored dual-repository engineering migration, independently reviewed complete baseline and ACK. Actual v3 QA passed 255 automation, 38 knowledge, 89 LADS and product broker checks; account authentication and AI remain unimplemented. Private runtime locations are explicitly documented without claiming physical relocation. Product PR5 merged; DevTeam publication not yet performed. Original failed attempts remain blocked and archived.\",\"review\":{\"sha256\":\"0cae6211238e41c223a3096927d420ec7f3cde5fb94e0f1b0b988eae060c4a14\",\"status\":\"APPROVED\"},\"source_head\":\"2c27792a33c31363d1a5fb627bf1d36aa34f9fbe\",\"task_id\":\"b8fc0fe9-92d2-41cf-a2bd-cf1f95af49de\",\"tests\":[{\"command\":\"python -B ../../split-verifier.py automation ../../qa-unit-current.json\",\"exit_code\":0,\"status\":\"completed\"},{\"command\":\"python -B ../../split-verifier.py knowledge ../../qa-unit-current.json\",\"exit_code\":0,\"status\":\"completed\"},{\"command\":\"python -B ../../split-verifier.py lads ../../qa-unit-current.json\",\"exit_code\":0,\"status\":\"completed\"},{\"command\":\"python -B ../../split-verifier.py broker ../../qa-broker-current.json\",\"exit_code\":0,\"status\":\"completed\"}],\"unit_evidence_sha256\":\"453d2d38176410a87469a29cdb1104b1e5eb0821de4d0239cbd857f77a4c681e\",\"working_content_commit\":null}"
+- component: "lads-stage3"
+<!-- /lads-automation:event -->
+
+<!-- lads-automation:event {"doc":"docs/DEVELOPMENT_PROGRESS.md","id":"1102423d-b759-5f49-b902-1b1602a43e80","payload_sha256":"c67942b20efdb0672dc24dec608434b760ffd1f969103fe31f17ba47a97b89d1"} -->
+### LADS event 1102423d-b759-5f49-b902-1b1602a43e80
+
+- Task: `da8c673f-9d99-4a78-9aec-55447f8aee81`
+- Event: `task_state_changed`
+- Recorded: `2026-11-13T16:43:37.249107Z`
+- QA/review verified: `true` (machine delivery receipt `{"acceptance_mode":"independent","authorization_sha256":null,"candidate_sha256":"9cc8cfcafdd493eda08b239563ed02f942c0c73b7579e72beb1759e2104a427f","controller_sha256":"182ac357b4edeead843d761e6d2315671351326c31fc7e3b27e007a5b28ade0c","qa_sha256":"e229b47a8992ac8f8cad10a4f7f743e85cd3c40a3cea08e3f9f5ecc300ca8f1a","reviewer_sha256":"0a2d44678c88a9f5aa12b17e69869a6177e300de49015c0278bd89d9760035e8","simulated":false}`)
+- summary: "Stage 3 delivery event: task_state_changed"
+- reason: "Final documentation only. Exact three-file candidate, actual isolated 255+38+89 tests and broker evidence independently verified; final DeepSeek Reviewer APPROVED and controller MAIN-ACK. Source migrations PR5 and PR1 already merged. Preserve connection/report failures and all deployment/device/App limits."
+- details: "{\"candidate_sha256\":\"9cc8cfcafdd493eda08b239563ed02f942c0c73b7579e72beb1759e2104a427f\",\"changed_files\":[\"docs/DEVELOPMENT_PROGRESS.md\",\"docs/DUAL_REPOSITORY_MIGRATION_REPORT.md\",\"docs/STATUS.md\"],\"changed_files_count\":3,\"changed_files_sha256\":\"e932eff95993ab8c9cee4efb22e23d77bebe2efb725c7f6a53c3541d0e60aed7\",\"dirty\":true,\"observed_head\":\"63d9278f7c9958699d17c7cab62c0d96d3a27eb8\",\"qa_contract_version\":3,\"reason\":\"Final documentation only. Exact three-file candidate, actual isolated 255+38+89 tests and broker evidence independently verified; final DeepSeek Reviewer APPROVED and controller MAIN-ACK. Source migrations PR5 and PR1 already merged. Preserve connection/report failures and all deployment/device/App limits.\",\"review\":{\"sha256\":\"0a2d44678c88a9f5aa12b17e69869a6177e300de49015c0278bd89d9760035e8\",\"status\":\"APPROVED\"},\"source_head\":\"63d9278f7c9958699d17c7cab62c0d96d3a27eb8\",\"task_id\":\"da8c673f-9d99-4a78-9aec-55447f8aee81\",\"tests\":[{\"command\":\"python -B ../../split-verifier.py automation ../../qa-unit-current.json\",\"exit_code\":0,\"status\":\"completed\"},{\"command\":\"python -B ../../split-verifier.py knowledge ../../qa-unit-current.json\",\"exit_code\":0,\"status\":\"completed\"},{\"command\":\"python -B ../../split-verifier.py lads ../../qa-unit-current.json\",\"exit_code\":0,\"status\":\"completed\"},{\"command\":\"python -B ../../split-verifier.py broker ../../qa-broker-current.json\",\"exit_code\":0,\"status\":\"completed\"}],\"unit_evidence_sha256\":\"1897ef4c68195a9472f1884d06fddc6e77afeb3e6f16ea4d646bd9f2d9c32a8a\",\"working_content_commit\":null}"
 - component: "lads-stage3"
 <!-- /lads-automation:event -->
