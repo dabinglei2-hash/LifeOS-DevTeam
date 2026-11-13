@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://life-os.local/schemas/lads-task-report.schema.json",
+  "title": "LADS strict worker report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["task_id", "role", "status", "summary", "evidence"],
+  "properties": {
+    "task_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "role": {
+      "enum": ["scanner", "reviewer", "builder", "qa-tester"]
+    },
+    "status": {
+      "enum": [
+        "SCAN_COMPLETE",
+        "BUILT",
+        "PASS",
+        "FAIL",
+        "N/A",
+        "APPROVED",
+        "CHANGES_REQUESTED",
+        "BLOCKED"
+      ]
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4000
+    },
+    "evidence": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 50,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 1000
+      }
+    },
+    "source_snapshot_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "role": {
+            "const": "scanner"
+          }
+        },
+        "required": ["role"]
+      },
+      "then": {
+        "properties": {
+          "status": {
+            "enum": ["SCAN_COMPLETE", "BLOCKED"]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "role": {
+            "const": "reviewer"
+          }
+        },
+        "required": ["role"]
+      },
+      "then": {
+        "properties": {
+          "status": {
+            "enum": ["APPROVED", "CHANGES_REQUESTED", "BLOCKED"]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "role": {
+            "const": "builder"
+          }
+        },
+        "required": ["role"]
+      },
+      "then": {
+        "properties": {
+          "status": {
+            "enum": ["BUILT", "BLOCKED"]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "role": {
+            "const": "qa-tester"
+          }
+        },
+        "required": ["role"]
+      },
+      "then": {
+        "required": ["source_snapshot_sha256"],
+        "properties": {
+          "status": {
+            "enum": ["PASS", "FAIL", "N/A", "BLOCKED"]
+          }
+        }
+      },
+      "else": {
+        "not": {
+          "required": ["source_snapshot_sha256"]
+        }
+      }
+    }
+  ]
+}

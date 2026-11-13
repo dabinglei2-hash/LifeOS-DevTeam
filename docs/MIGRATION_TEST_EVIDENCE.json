@@ -1,0 +1,145 @@
+{
+  "schema": "lads-dual-repository-migration-evidence-v1",
+  "status": "LOCAL_PHASE_VERIFIED_REMOTE_MIGRATION_BLOCKED",
+  "started": "2026-11-12",
+  "updated": "2026-11-13",
+  "main_controller_implementation": true,
+  "migration_reviewer_independent": false,
+  "product_tests": {
+    "javascript_syntax": 30,
+    "pwa_build": "PASS",
+    "pwa_integrity": "PASS",
+    "browser_checks": 14,
+    "notes_api_synthetic": "PASS",
+    "real_product_authentication": "NOT_IMPLEMENTED"
+  },
+  "engineering_tests": {
+    "automation": 209,
+    "knowledge": 38,
+    "lads": 89,
+    "new_safety_tests": 6
+  },
+  "roles": [
+    {
+      "role": "scanner",
+      "model_provider": "lifeos_deepseek",
+      "model_name": "deepseek-flash",
+      "status": "SCAN_COMPLETE",
+      "input_tokens": 85977,
+      "output_tokens": 7354
+    },
+    {
+      "role": "reviewer",
+      "model_provider": "lifeos_deepseek",
+      "model_name": "deepseek-flash",
+      "status": "APPROVED",
+      "input_tokens": 32421,
+      "output_tokens": 2520
+    },
+    {
+      "role": "builder",
+      "model_provider": "lifeos_deepseek",
+      "model_name": "deepseek-flash",
+      "status": "BUILT",
+      "input_tokens": 79900,
+      "output_tokens": 4791
+    },
+    {
+      "role": "qa-tester",
+      "model_provider": "lifeos_deepseek",
+      "model_name": "deepseek-flash",
+      "status": "PASS",
+      "input_tokens": 19620,
+      "output_tokens": 655
+    },
+    {
+      "role": "reviewer",
+      "model_provider": "lifeos_deepseek",
+      "model_name": "deepseek-flash",
+      "status": "APPROVED",
+      "input_tokens": 53988,
+      "output_tokens": 3268
+    }
+  ],
+  "worker_task": "73417744-862d-4656-9891-06e72b0dea1c",
+  "worker_calls": 5,
+  "worker_scope": "SYNTHETIC_ROUTE_ONLY_NOT_MIGRATION_APPROVAL",
+  "project_ids": {
+    "lifeos": "b64ec23c-dd38-528c-9827-d72127513caa",
+    "devteam": "ebc8cefb-1f79-5193-bbfb-0ac069f9ee71"
+  },
+  "knowledge": {
+    "restored_ids_preserved": true,
+    "restore_to_new_alias": "PASS",
+    "git_tracked": false,
+    "devteam_documents": "PENDING_FIRST_REAL_COMMIT"
+  },
+  "github": {
+    "owner": "dabinglei2-hash",
+    "visibility": "public",
+    "lifeos_main": "607fb7687e7966ef1acfad02c07e558625044d2c",
+    "devteam_main": null,
+    "new_migration_commits": [],
+    "new_migration_prs": [],
+    "new_migration_ci": "NOT_RUN",
+    "devteam_ruleset": 27133373,
+    "existing_product_protection_unchanged": true,
+    "production_review_environment": true
+  },
+  "blocked": [
+    "MIGRATION_INDEPENDENT_FINAL_APPROVAL",
+    "DEVTEAM_INITIAL_MAIN_BOOTSTRAP",
+    "PRODUCT_QA_COMMIT_PIN",
+    "DEVTEAM_SELF_QA_RELEASE_PROFILE_ADAPTATION",
+    "REAL_GITHUB_CI_AND_NATIVE_AUTOMERGE"
+  ],
+  "deployed": false,
+  "historical_checkpoint": true,
+  "checkpoint_phase": "Before README bootstrap and v3 split QA; retained phase evidence, not current status",
+  "current_addendum": {
+    "product_independent_task": "f1b9ba0f-f123-480b-a402-a76568fa7c00",
+    "product_independent_final": "APPROVED",
+    "product_local_delivery": "DELIVERY_READY",
+    "devteam_previous_task": "3e5b3b6e-241e-4432-970c-a8a5b05ce25a",
+    "devteam_previous_result": "BLOCKED_BY_SCANNER",
+    "targeted_tests_passed": {
+      "release_receipts": 6,
+      "registry": 13,
+      "repository_safety": 8,
+      "github_release": 67
+    },
+    "devteam_fixes": "MAIN_IMPLEMENTED_PENDING_INDEPENDENT_VALIDATION",
+    "publication": "PRODUCT_MERGED_DEVTEAM_PENDING",
+    "blocked_attempts": [
+      {
+        "task_id": "3e5b3b6e-241e-4432-970c-a8a5b05ce25a",
+        "reason": "unborn repository preflight defect"
+      },
+      {
+        "task_id": "4843ddeb-84a4-42f2-adf4-6a09856324d4",
+        "reason": "external non-project Codex config drift"
+      },
+      {
+        "task_id": "d01f0922-23ce-418a-8a5e-a7462899fe3a",
+        "reason": "runtime location documentation overstatement"
+      },
+      {
+        "task_id": "f057f2c5-d9df-4cf5-90bb-1295ac623581",
+        "reason": "controller cancelled obsolete snapshot to finish documentation consistency"
+      }
+    ],
+    "runtime_location": "DB, composite QA and complete backup in LADS-Workspace; existing ignored per-repository CLI control roots and user-level journals retained, never Git tracked",
+    "dependency_audit": {
+      "locked_packages": 6,
+      "known_vulnerabilities": 0,
+      "actual_exit_code": 0
+    },
+    "product_publication": {
+      "pr": "https://github.com/dabinglei2-hash/LifeOS/pull/5",
+      "commit_sha": "65bf20dcb99adaed48f9b45f7cf5b9067183ec02",
+      "merge_sha": "162ab01f71226320026494e1b17f8fa6e49c70f5",
+      "postmerge_required_ci": "PASS",
+      "staging_readiness": "BLOCKED_NO_TARGET_NOT_DEPLOYED"
+    }
+  }
+}

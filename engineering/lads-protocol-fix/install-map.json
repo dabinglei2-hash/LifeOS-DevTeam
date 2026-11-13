@@ -1,0 +1,20 @@
+{
+  "source_head": "aea9e758baac88c310319f34a77f94f2364b0c11",
+  "source_snapshot_sha256": "cdbe41e9fbcfd49233907df09b64f3e05fa0d29e10fa7d34fedb2e3b5d2f697a",
+  "targets": [
+    {
+      "source_path": "scripts/lads_orchestrator.py",
+      "candidate_path": "engineering/lads-protocol-fix/lads_orchestrator.py",
+      "source_head": "aea9e758baac88c310319f34a77f94f2364b0c11",
+      "original_sha256": "7ad445da36aa1924f96c3f4fddb1e65541d81ce065a2e455d6f85c5b25c4d6bb",
+      "candidate_sha256": "7cbf50257826a447875486a76e8d1a10b0c106f312fcab6ff6d142a6345c3d93"
+    },
+    {
+      "source_path": "scripts/lifeos-deepseek.py",
+      "candidate_path": "engineering/lads-protocol-fix/lifeos-deepseek.py",
+      "source_head": "aea9e758baac88c310319f34a77f94f2364b0c11",
+      "original_sha256": "f19a0abf953ff3db591e9f66be77494c4bdaafc1c98ad3b12004994e50abc818",
+      "candidate_sha256": "6fc72b898ba9de84950e0f0f0f794c1be1bc0de2aa79ba750a5470c22f0b3c96"
+    }
+  ]
+}

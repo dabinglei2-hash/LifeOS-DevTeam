@@ -1,0 +1,110 @@
+name: LADS CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lads-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    name: LADS CI / ci
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Check out exact event commit
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Set up Python 3.14
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: requirements-lads.txt
+
+      - name: Set up Node 24
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "24"
+
+      - name: Install exact Python test dependencies
+        run: python -m pip install --disable-pip-version-check -r requirements-lads.txt
+
+      - name: Run automation, knowledge, and LADS unit suites
+        run: |
+          set -euo pipefail
+          python -B -m unittest discover -s tests/automation -v
+          python -B -m unittest discover -s tests/knowledge -v
+          python -B -m unittest discover -s tests/lads -v
+
+      - name: Check JavaScript syntax
+        run: |
+          set -euo pipefail
+          find . \( -path './.git' -o -path './vendor' \) -prune -o \
+            -type f \( -name '*.js' -o -name '*.mjs' -o -name '*.cjs' \) -print0 \
+            | xargs -0 -r -n 1 node --check
+
+      - name: Build and verify PWA in an isolated copy
+        run: |
+          set -euo pipefail
+          evidence="${RUNNER_TEMP}/lads-evidence"
+          mkdir -p "$evidence"
+          temporary="$(mktemp -d "${RUNNER_TEMP}/lifeos-pwa.XXXXXX")"
+          mkdir -p "$temporary/source"
+          cp -a . "$temporary/source/repository"
+          rm -rf "$temporary/source/repository/.git"
+          echo "LADS_PWA_TEST_ROOT=$temporary/source/repository" >> "$GITHUB_ENV"
+          (
+            cd "$temporary/source/repository"
+            output=".ci-pwa-dist-${GITHUB_RUN_ID:-local}-${GITHUB_RUN_ATTEMPT:-1}-$$"
+            test ! -e "$output"
+            node scripts/build-pwa.mjs "$output"
+            node scripts/check-pwa.mjs "$output"
+          ) | tee "$evidence/pwa-check.json"
+
+      - name: Run synthetic browser and JSON regression
+        run: |
+          set -euo pipefail
+          evidence="${RUNNER_TEMP}/lads-evidence"
+          pw="${RUNNER_TEMP}/playwright-tool"
+          browsers="${RUNNER_TEMP}/playwright-browsers"
+          mkdir -p "$evidence/browser" "$pw" "$browsers"
+          npm install --prefix "$pw" --no-save --no-package-lock playwright@1.64.1
+          PLAYWRIGHT_BROWSERS_PATH="$browsers" \
+            npm exec --prefix "$pw" -- playwright install chromium
+          cd "$LADS_PWA_TEST_ROOT"
+          set +e
+          LIFEOS_PLAYWRIGHT_PATH="$pw/node_modules/playwright" \
+          PLAYWRIGHT_BROWSERS_PATH="$browsers" \
+          LADS_ARTIFACT_DIR="$evidence/browser" \
+            node tests/browser/lads-regression.cjs > "$evidence/browser-result.json"
+          browser_exit=$?
+          set -e
+          cat "$evidence/browser-result.json"
+          exit "$browser_exit"
+
+      - name: Run loopback notes API contract
+        run: |
+          set -euo pipefail
+          evidence="${RUNNER_TEMP}/lads-evidence"
+          mkdir -p "$evidence/api"
+          LADS_ARTIFACT_DIR="$evidence/api" \
+            python -B tests/acceptance/notes-api-contract.py | tee "$evidence/api-result.json"
+
+      - name: Upload bounded synthetic evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: lads-ci-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/lads-evidence
+          if-no-files-found: warn
+          retention-days: 7

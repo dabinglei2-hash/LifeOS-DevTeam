@@ -1,0 +1,153 @@
+{
+  "schema": "lads-stage3-install-map-v1",
+  "source_head": "aea9e758baac88c310319f34a77f94f2364b0c11",
+  "source_snapshot_sha256": "b908fb2e6846651adf0fb1701001a0b845130bca3d877699a838fa5bda4fc31d",
+  "target_allowlist": [
+    ".agents/skills/lifeos-data-guard/SKILL.md",
+    ".agents/skills/lifeos-ios-design/SKILL.md",
+    ".agents/skills/lifeos-project-memory/SKILL.md",
+    ".agents/skills/lifeos-git-release/SKILL.md",
+    ".agents/skills/lifeos-qa-testing/SKILL.md",
+    ".agents/skills/lifeos-knowledge-sync/SKILL.md",
+    ".agents/skills/lifeos-release-management/SKILL.md",
+    "AGENTS.md",
+    ".codex/hooks.json",
+    "scripts/lads_orchestrator.py",
+    "scripts/lifeos-deepseek.py",
+    "tests/lads/test_orchestrator.py"
+  ],
+  "targets": [
+    {
+      "source_path": ".agents/skills/lifeos-data-guard/SKILL.md",
+      "candidate_path": "engineering/lads-stage3-install/skills/lifeos-data-guard/SKILL.md",
+      "source_head": "aea9e758baac88c310319f34a77f94f2364b0c11",
+      "original_sha256": "6070c2387b11ec4c73eab87ff73a63d3ca09862aa3ce02296e14ea827a418c60",
+      "original_absent": false,
+      "candidate_sha256": "0dccff7c7780ac3c59b5801aa6338313805047b4c2fc55c295349c1bf991f928",
+      "allowed_changes": [
+        "Append Stage 3 applicability, steps, safety, output, and acceptance guidance after preserved original bytes."
+      ]
+    },
+    {
+      "source_path": ".agents/skills/lifeos-ios-design/SKILL.md",
+      "candidate_path": "engineering/lads-stage3-install/skills/lifeos-ios-design/SKILL.md",
+      "source_head": "aea9e758baac88c310319f34a77f94f2364b0c11",
+      "original_sha256": "2ac78e14cd1f6bf2373fca96331c4e1c1c500426f48d59f34e435a33c2796332",
+      "original_absent": false,
+      "candidate_sha256": "6afbdf2be6392bb14a796aafd0c271c0afa0a2ff31875d6f5f30ecd763d1f148",
+      "allowed_changes": [
+        "Append Stage 3 applicability, steps, safety, output, and acceptance guidance after preserved original bytes."
+      ]
+    },
+    {
+      "source_path": ".agents/skills/lifeos-project-memory/SKILL.md",
+      "candidate_path": "engineering/lads-stage3-install/skills/lifeos-project-memory/SKILL.md",
+      "source_head": "aea9e758baac88c310319f34a77f94f2364b0c11",
+      "original_sha256": "a5d25f69b17ea4d094756e7833846bff12130866c10a0bca5a3c68edbf5c4154",
+      "original_absent": false,
+      "candidate_sha256": "818d5f9d5e36f3a1f16a46608d4054e1b8492eeb3917ec16818cbb5cce2dfb23",
+      "allowed_changes": [
+        "Append Stage 3 applicability, steps, safety, output, and acceptance guidance after preserved original bytes."
+      ]
+    },
+    {
+      "source_path": ".agents/skills/lifeos-git-release/SKILL.md",
+      "candidate_path": "engineering/lads-stage3-install/skills/lifeos-git-release/SKILL.md",
+      "source_head": "aea9e758baac88c310319f34a77f94f2364b0c11",
+      "original_sha256": null,
+      "original_absent": true,
+      "candidate_sha256": "6e8161c3861307d51070743523887189311278666d0f1293d3654e3e5c12a3ef",
+      "allowed_changes": [
+        "Create reviewed Git release skill candidate only."
+      ]
+    },
+    {
+      "source_path": ".agents/skills/lifeos-qa-testing/SKILL.md",
+      "candidate_path": "engineering/lads-stage3-install/skills/lifeos-qa-testing/SKILL.md",
+      "source_head": "aea9e758baac88c310319f34a77f94f2364b0c11",
+      "original_sha256": null,
+      "original_absent": true,
+      "candidate_sha256": "300a98eb56be6347eb4c45e0913bc216f567eeaf5f0c3fa941798d150d50186c",
+      "allowed_changes": [
+        "Create reviewed QA testing skill candidate only."
+      ]
+    },
+    {
+      "source_path": ".agents/skills/lifeos-knowledge-sync/SKILL.md",
+      "candidate_path": "engineering/lads-stage3-install/skills/lifeos-knowledge-sync/SKILL.md",
+      "source_head": "aea9e758baac88c310319f34a77f94f2364b0c11",
+      "original_sha256": null,
+      "original_absent": true,
+      "candidate_sha256": "b4b0efaf2ac34878dd890c5cf94916b294e7bc7f7212688a4c6cb565a630c968",
+      "allowed_changes": [
+        "Create reviewed knowledge synchronization skill candidate only."
+      ]
+    },
+    {
+      "source_path": ".agents/skills/lifeos-release-management/SKILL.md",
+      "candidate_path": "engineering/lads-stage3-install/skills/lifeos-release-management/SKILL.md",
+      "source_head": "aea9e758baac88c310319f34a77f94f2364b0c11",
+      "original_sha256": null,
+      "original_absent": true,
+      "candidate_sha256": "36f90bd195225f9775c393c7744be05734319c6c6d93a12a31f8e0e96f915845",
+      "allowed_changes": [
+        "Create reviewed release management skill candidate only."
+      ]
+    },
+    {
+      "source_path": "AGENTS.md",
+      "candidate_path": "engineering/lads-stage3-install/AGENTS.md",
+      "source_head": "aea9e758baac88c310319f34a77f94f2364b0c11",
+      "original_sha256": "e5554d62515abb7685bf2a739ab5a5334ae9e23fc277ba9cf8ab0263925ef011",
+      "original_absent": false,
+      "candidate_sha256": "b158e00c2f4e475954c4408f50258a6efac4337e534cb17e71094da9953d6c2b",
+      "allowed_changes": [
+        "Append one concise Stage 3 workflow rule after all existing AGENTS bytes."
+      ]
+    },
+    {
+      "source_path": ".codex/hooks.json",
+      "candidate_path": "engineering/lads-stage3-install/hooks.json",
+      "source_head": "aea9e758baac88c310319f34a77f94f2364b0c11",
+      "original_sha256": null,
+      "original_absent": true,
+      "candidate_sha256": "01d5631d2d4f5843f2f18b2a8ce75f8b69df23fa3b13c58fc1ac7e144bbb2350",
+      "allowed_changes": [
+        "Create project Hook configuration for exactly PreToolUse, PostToolUse, SubagentStop, and Stop."
+      ]
+    },
+    {
+      "source_path": "scripts/lads_orchestrator.py",
+      "candidate_path": "engineering/lads-protocol-fix/lads_orchestrator.py",
+      "source_head": "aea9e758baac88c310319f34a77f94f2364b0c11",
+      "original_sha256": "7ad445da36aa1924f96c3f4fddb1e65541d81ce065a2e455d6f85c5b25c4d6bb",
+      "original_absent": false,
+      "candidate_sha256": "7cbf50257826a447875486a76e8d1a10b0c106f312fcab6ff6d142a6345c3d93",
+      "allowed_changes": [
+        "Install the previously reviewed protocol-maintenance candidate bytes unchanged."
+      ]
+    },
+    {
+      "source_path": "scripts/lifeos-deepseek.py",
+      "candidate_path": "engineering/lads-protocol-fix/lifeos-deepseek.py",
+      "source_head": "aea9e758baac88c310319f34a77f94f2364b0c11",
+      "original_sha256": "f19a0abf953ff3db591e9f66be77494c4bdaafc1c98ad3b12004994e50abc818",
+      "original_absent": false,
+      "candidate_sha256": "6fc72b898ba9de84950e0f0f0f794c1be1bc0de2aa79ba750a5470c22f0b3c96",
+      "allowed_changes": [
+        "Install the previously reviewed provider/profile helper candidate bytes unchanged."
+      ]
+    },
+    {
+      "source_path": "tests/lads/test_orchestrator.py",
+      "candidate_path": "engineering/lads-stage3-install/tests/lads/test_orchestrator.py",
+      "source_head": "aea9e758baac88c310319f34a77f94f2364b0c11",
+      "original_sha256": "d3b1265b16aa5049869525ff38fc6c964eede00cb187782e4aa1a27fa641c354",
+      "original_absent": false,
+      "candidate_sha256": "3b971770d38f7af2e3a63f23ab7ee4095676d12b35516b44b0afc943011eca5c",
+      "allowed_changes": [
+        "Replace only the hardcoded argv tail assertion with literal exec-prefix, exact supported suffix/options, schema path, and schema-content checks."
+      ]
+    }
+  ]
+}
