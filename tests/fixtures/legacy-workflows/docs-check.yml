@@ -1,0 +1,124 @@
+name: LADS Docs
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lads-docs-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  docs:
+    name: LADS Docs / docs
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out complete before/after history
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Check changed documentation and current automation claims
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import os
+          import re
+          import subprocess
+          from pathlib import Path
+          from urllib.parse import unquote, urlsplit
+
+          base = os.environ["BASE_SHA"].strip()
+          head = os.environ["HEAD_SHA"].strip()
+          if not re.fullmatch(r"[0-9a-f]{40}", base) or not re.fullmatch(r"[0-9a-f]{40}", head):
+              raise SystemExit("docs: invalid event commit identity")
+          changed = subprocess.run(
+              ["git", "diff", "--name-only", "--diff-filter=ACMR", base, head, "--", "docs"],
+              check=True,
+              capture_output=True,
+              text=True,
+              encoding="utf-8",
+          ).stdout.splitlines()
+          current = Path("docs/LADS_GITHUB_AUTOMATION.md")
+          required_states = (
+              "DELIVERY_READY",
+              "MERGED_INDEX_PENDING",
+              "LADS CI",
+              "LADS Security",
+              "LADS Docs",
+              "LADS / controller",
+          )
+          required_events = (
+              "requirements_changed",
+              "architecture_changed",
+              "data_model_changed",
+              "agent_rules_changed",
+              "toolchain_changed",
+              "workflow_changed",
+              "task_state_changed",
+              "release_changed",
+              "issue_found",
+              "task_delivered",
+          )
+          if current.exists():
+              text = current.read_text(encoding="utf-8")
+              missing = [value for value in (*required_states, *required_events) if value not in text]
+              if missing:
+                  raise SystemExit("docs: current automation document omits required state/event coverage")
+              statuses = re.findall(
+                  r"(?m)^## Live GitHub E2E: (PENDING|BLOCKED|PASS)$",
+                  text,
+              )
+              if len(statuses) != 1:
+                  raise SystemExit("docs: Live GitHub E2E declaration must appear exactly once")
+              if statuses[0] == "PASS":
+                  pass_patterns = (
+                      r"(?m)^- PR: https://github\.com/dabinglei2-hash/LifeOS/pull/[1-9][0-9]*$",
+                      r"(?m)^- LADS CI / ci: success$",
+                      r"(?m)^- LADS Security / security: success$",
+                      r"(?m)^- LADS Docs / docs: success$",
+                      r"(?m)^- LADS / controller: success$",
+                      r"(?m)^- Merged: true$",
+                      r"(?m)^- Merge commit SHA: [0-9a-f]{40}$",
+                  )
+                  if any(re.search(pattern, text) is None for pattern in pass_patterns):
+                      raise SystemExit(
+                          "docs: PASS requires exact PR, required-check, merge, and merge-SHA evidence"
+                      )
+          documents = changed if current.as_posix() in changed else [*changed, current.as_posix()]
+          for relative in documents:
+              path = Path(relative)
+              if path.suffix.casefold() not in {".md", ".markdown"} or not path.is_file():
+                  continue
+              for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+                  if "历史" in line:
+                      continue
+                  if "historical" in line.casefold() or "历史保留" in line:
+                      continue
+                  for target in re.findall(r"(?<!!)\[[^\]]+\]\(([^)]+)\)", line):
+                      value = target.strip().strip("<>").split()[0]
+                      if value.startswith(("#", "http://", "https://", "mailto:")):
+                          continue
+                      if value.startswith(("/", "\\")) or re.match(r"^[A-Za-z]:", value):
+                          continue
+                      decoded = unquote(urlsplit(value).path)
+                      parts = {
+                          part.casefold()
+                          for part in decoded.replace("\\", "/").split("/")
+                      }
+                      if parts & {"work", "backups", "artifacts", "private"}:
+                          continue
+                      destination = (path.parent / decoded).resolve()
+                      if not destination.exists():
+                          raise SystemExit(f"docs: broken local link {relative}:{line_number}")
+          print(f"docs: checked {len(documents)} changed document(s)")
+          PY

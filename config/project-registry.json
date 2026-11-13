@@ -1,0 +1,19 @@
+{
+  "schema": "lads-project-registry-v1",
+  "projects": {
+    "lifeos": {
+      "project_id": "b64ec23c-dd38-528c-9827-d72127513caa",
+      "namespace": "lads.lifeos",
+      "repository": "dabinglei2-hash/LifeOS",
+      "directory": "LifeOS-Product",
+      "qa_profile": "product"
+    },
+    "devteam": {
+      "project_id": "ebc8cefb-1f79-5193-bbfb-0ac069f9ee71",
+      "namespace": "lads.devteam",
+      "repository": "dabinglei2-hash/LifeOS-DevTeam",
+      "directory": "LifeOS-DevTeam",
+      "qa_profile": "engineering"
+    }
+  }
+}

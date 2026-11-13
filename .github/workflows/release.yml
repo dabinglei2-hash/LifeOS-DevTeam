@@ -1,0 +1,12 @@
+name: LADS release validation
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  readiness:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "BLOCKED: release publication needs an independently accepted version and explicit release authorization. No tag or release is created."
+          exit 1

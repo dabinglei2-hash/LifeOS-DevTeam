@@ -1,0 +1,193 @@
+name: LADS Security
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lads-security-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  security:
+    name: LADS Security / security
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Check out complete before/after history
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Set up Python 3.14
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.14"
+
+      - name: Set up Node 24
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "24"
+
+      - name: Analyze complete outgoing diff without printing content
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import os
+          import re
+          import subprocess
+          import hashlib
+
+          base = os.environ["BASE_SHA"].strip()
+          head = os.environ["HEAD_SHA"].strip()
+          if not re.fullmatch(r"[0-9a-f]{40}", base) or not re.fullmatch(r"[0-9a-f]{40}", head):
+              raise SystemExit("security: invalid event commit identity")
+          raw = subprocess.run(
+              ["git", "diff", "--name-status", "--no-renames", base, head],
+              check=True,
+              capture_output=True,
+              text=True,
+              encoding="utf-8",
+          ).stdout
+          denied_parts = {
+              ".env", ".ssh", ".aws", ".git", "auth.json", "credentials",
+              "credential", "personal-data", "data-backups", "browser-profile",
+              "chrome-profile", "cookies", "backups", "id_rsa", "id_ed25519",
+              ".netrc", ".npmrc", ".pypirc",
+          }
+          denied_suffixes = {
+              ".db", ".sqlite", ".sqlite3", ".sqlite-wal", ".sqlite-shm",
+              ".db-wal", ".db-shm", ".pem", ".key", ".p12", ".pfx", ".kdbx",
+          }
+          credential_patterns = (
+              re.compile("-----BEGIN " + r"[A-Z0-9 ]*PRIVATE KEY-----"),
+              re.compile(r"(?i)\b(?:gh[pousr]|github_pat)_[A-Za-z0-9_-]{20,}\b"),
+              re.compile(r"\bsk-(?:proj-|live-)?[A-Za-z0-9_-]{20,}\b"),
+              re.compile(r"\b(?:AKIA|ASIA)[A-Z0-9]{16}\b"),
+              re.compile(r"(?i)\bBearer\s+[A-Za-z0-9._~+/=-]{20,}"),
+              re.compile(
+                  r"(?i)\b(?:api[_-]?key|access[_-]?token|auth[_-]?token|password|passwd|secret)"
+                  + r"\s*[:=]\s*['\"]?[A-Za-z0-9._~+/=-]{20,}"
+              ),
+          )
+          history_patterns = (
+              re.compile(
+                  r"\bgit\s+push\b[^\n]*(?:--force(?:-with-lease)?|\s-f(?:\s|$))",
+                  re.IGNORECASE,
+              ),
+              re.compile(r"\bgit\s+reset\s+--hard\b", re.IGNORECASE),
+              re.compile(r"\bgit\s+clean\s+-[A-Za-z]*f[A-Za-z]*\b", re.IGNORECASE),
+          )
+          exemptions = {
+              (
+                  "tests/knowledge/test_indexer.py",
+                  "defa8d583c51f7c8e48e88a918a7e852400aba72305165bc563e4f204d5d4fc9",
+                  "credential_or_key_material",
+              ),
+              (
+                  "docs/LADS_AUTOMATION.md",
+                  "ef6d071f36fb69c0ac2035ffce9141bd1dde3935b9ed20fed5c08b8f904c35c5",
+                  "history_rewrite_or_force_command",
+              ),
+              (
+                  "engineering/lads-stage3-install/tests/lads/test_orchestrator.py",
+                  "3b971770d38f7af2e3a63f23ab7ee4095676d12b35516b44b0afc943011eca5c",
+                  "credential_or_key_material",
+              ),
+              (
+                  "lads_automation/hooks.py",
+                  "37b4bb767b75a23b0513fa7e74108234e3f0192e0146e6ca2008e82ea78f92a7",
+                  "history_rewrite_or_force_command",
+              ),
+              (
+                  "tests/automation/test_hooks.py",
+                  "d9f12ef556ce1b568cad09f8226d0007863e368b8782ddf0a9455204634368bc",
+                  "history_rewrite_or_force_command",
+              ),
+              (
+                  "tests/automation/test_rpc.py",
+                  "ff2e400560d1aee09003c27b22f0adc8153f4c1bdca1346ea4b4257359754273",
+                  "credential_or_key_material",
+              ),
+              (
+                  "tests/lads/test_orchestrator.py",
+                  "241d4e445bdd8eee9f54563c361a8b6f42dd41f050f84d0c6243948c24017742",
+                  "credential_or_key_material",
+              ),
+          }
+          critical = []
+          high = []
+          for line in raw.splitlines():
+              status, path = line.split("\t", 1)
+              parts = set(path.casefold().split("/"))
+              name = path.rsplit("/", 1)[-1].casefold()
+              suffix = "." + path.rsplit(".", 1)[-1].casefold() if "." in path else ""
+              if (
+                  parts & denied_parts
+                  or suffix in denied_suffixes
+                  or name.startswith(".env")
+              ):
+                  critical.append((path, "private-or-secret-path"))
+              if path.startswith(".github/workflows/"):
+                  high.append((path, "workflow-policy-change"))
+              if status == "D":
+                  high.append((path, "deletion-requires-controller-approval"))
+                  continue
+              blob = subprocess.run(
+                  ["git", "show", f"{head}:{path}"],
+                  check=False,
+                  capture_output=True,
+              ).stdout
+              if b"\0" in blob[:8192]:
+                  high.append((path, "binary-asset-review-required"))
+                  continue
+              try:
+                  text = blob.decode("utf-8")
+              except UnicodeDecodeError:
+                  high.append((path, "non-utf8-asset-review-required"))
+                  continue
+              digest = hashlib.sha256(blob).hexdigest()
+              if (
+                  (path, digest, "credential_or_key_material") not in exemptions
+                  and any(pattern.search(text) for pattern in credential_patterns)
+              ):
+                  critical.append((path, "credential-or-key-material"))
+              if (
+                  (path, digest, "history_rewrite_or_force_command") not in exemptions
+                  and any(pattern.search(text) for pattern in history_patterns)
+              ):
+                  critical.append((path, "history-rewrite-or-force-command"))
+          report = ["# LADS security diff audit", "", f"Base: `{base}`", f"Head: `{head}`", ""]
+          report.extend(f"- HIGH `{path}`: {reason}" for path, reason in sorted(set(high)))
+          report.extend(f"- CRITICAL `{path}`: {reason}" for path, reason in sorted(set(critical)))
+          if not high and not critical:
+              report.append("- No suspicious path, binary, or credential-like content was found.")
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as handle:
+              handle.write("\n".join(report) + "\n")
+          if critical:
+              raise SystemExit("security: critical outgoing content rejected")
+          print(f"security: {len(high)} high-risk review item(s), 0 critical item(s)")
+          PY
+
+      - name: Audit pinned Python dependencies
+        run: |
+          set -euo pipefail
+          audit="${RUNNER_TEMP}/pip-audit-tool"
+          python -m pip install --disable-pip-version-check --target "$audit" pip-audit==2.9.0
+          PYTHONPATH="$audit" python -m pip_audit -r requirements-lads.txt
+
+      - name: Audit runner-only browser tooling
+        run: |
+          set -euo pipefail
+          audit="${RUNNER_TEMP}/playwright-audit"
+          mkdir -p "$audit"
+          npm install --prefix "$audit" --package-lock-only --ignore-scripts playwright@1.64.1
+          npm audit --prefix "$audit" --audit-level=low

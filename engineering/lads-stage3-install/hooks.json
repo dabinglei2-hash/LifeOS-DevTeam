@@ -1,0 +1,50 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command \"$root=(git rev-parse --show-toplevel); if($LASTEXITCODE -ne 0){exit 2}; Set-Location -LiteralPath $root; & 'C:/Users/Administrator/AppData/Local/LifeOS-LADS/runtime/kb-py314-20261103-032849/Scripts/python.exe' -B 'scripts/lads_hook.py'\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command \"$root=(git rev-parse --show-toplevel); if($LASTEXITCODE -ne 0){exit 2}; Set-Location -LiteralPath $root; & 'C:/Users/Administrator/AppData/Local/LifeOS-LADS/runtime/kb-py314-20261103-032849/Scripts/python.exe' -B 'scripts/lads_hook.py'\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command \"$root=(git rev-parse --show-toplevel); if($LASTEXITCODE -ne 0){exit 2}; Set-Location -LiteralPath $root; & 'C:/Users/Administrator/AppData/Local/LifeOS-LADS/runtime/kb-py314-20261103-032849/Scripts/python.exe' -B 'scripts/lads_hook.py'\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command \"$root=(git rev-parse --show-toplevel); if($LASTEXITCODE -ne 0){exit 2}; Set-Location -LiteralPath $root; & 'C:/Users/Administrator/AppData/Local/LifeOS-LADS/runtime/kb-py314-20261103-032849/Scripts/python.exe' -B 'scripts/lads_hook.py'\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

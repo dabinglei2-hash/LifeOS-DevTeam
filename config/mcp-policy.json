@@ -1,0 +1,6 @@
+{
+  "schema": "lads-mcp-policy-v1",
+  "enabled": false,
+  "reason": "DeepSeek MCP tool compatibility and credential-free isolation have not been independently accepted.",
+  "servers": {}
+}

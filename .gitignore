@@ -1,0 +1,64 @@
+# Previous manual copies and local verification artifacts
+/backups/
+/work/
+/qa/
+
+# Personal data exported by this website
+我的生活管理台-v*-备份-*.json
+/personal-data/
+/data-backups/
+LifeOS-health-v*-*.json
+*.db
+*.sqlite
+*.sqlite3
+
+# Credentials and local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Dependencies and build artifacts
+node_modules/
+dist/
+.next/
+coverage/
+*.log
+
+# Operating system temporary files
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.tmp
+
+# Local skill distribution archive; editable skills are tracked separately
+/lifeos-skills-pack.zip
+
+# Private notes exports and Python runtime artifacts
+LifeOS-notes-v*-*.json
+__pycache__/
+*.pyc
+
+# Python environments, database sidecars and local tool caches
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.sqlite-wal
+*.sqlite-shm
+*.sqlite3-wal
+*.sqlite3-shm
+*.db-wal
+*.db-shm
+.codex/sessions/
+.codex/logs/
+
+.lads-artifacts/
+.ci-pwa-dist-*/
+.ci-*/
+.integration-*/
+.migration-private/
+*.zip
+*.bundle
