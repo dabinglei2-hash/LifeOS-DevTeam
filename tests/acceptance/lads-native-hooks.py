@@ -11,7 +11,7 @@ from scripts import lads_session
 def execute_live(*, namespace: str, timeout: int = 360):
     base=acceptance_root(namespace);base.mkdir(parents=True,exist_ok=False)
     helper=BASE.load_helper();baseline=helper.main_config_snapshot()
-    env={k:v for k,v in os.environ.items() if (not k.startswith('CODEX_') or k=='CODEX_HOME') and not any(s in k.upper() for s in ('API_KEY','TOKEN','SECRET','PASSWORD')) or k=='OPENAI_API_KEY'}
+    env={k:v for k,v in lads_session.environment().items() if not any(s in k.upper() for s in ('API_KEY','TOKEN','SECRET','PASSWORD')) or k=='OPENAI_API_KEY'}
     env['LADS_HOOK_ACCEPTANCE_NAMESPACE']=namespace;env['PYTHONDONTWRITEBYTECODE']='1'
     argv=lads_session.command();argv=argv[:argv.index('--sandbox')]+['--enable','windows_sandbox_service','--disable','apps','--disable','plugins','--disable','multi_agent','--disable','multi_agent_v2','-c','shell_environment_policy.exclude=["*KEY*","*TOKEN*","*SECRET*","*PASSWORD*"]','-c','agents.enabled=false','-c','mcp_servers.node_repl.enabled=false','app-server']
     p=subprocess.Popen(argv,cwd=root,env=env,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,encoding='utf-8');q=queue.Queue();events=[];stderr=[]
@@ -34,6 +34,7 @@ def execute_live(*, namespace: str, timeout: int = 360):
      if item:row['item']={k:item.get(k) for k in ('type','status','exitCode')}
      if method in ('error','codex/event/error') or 'error' in params:
       row['error']=redact(params.get('error',params))
+     if method=='warning':row['warning']=redact(params.get('message',''))
      if params.get('msg',{}).get('type') in ('error','warning'):row['message']=redact(params['msg'])
      events.append(row)
      if 'id' in x and method:

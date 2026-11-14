@@ -17,6 +17,35 @@ def load_entrypoint():
 
 
 class NativeEntrypointTests(unittest.TestCase):
+    def test_controller_environment_supplies_real_python_without_model_override(self):
+        module = load_entrypoint()
+        environment = module.lads_session.environment({'CODEX_SYNTHETIC': 'omit', 'HTTPS_PROXY': 'http://127.0.0.1:1'})
+        self.assertEqual(str(Path(module.sys.executable).resolve(strict=True)), environment['LADS_PYTHON'])
+        self.assertNotIn('CODEX_SYNTHETIC', environment)
+        self.assertEqual('http://127.0.0.1:1', environment['HTTPS_PROXY'])
+        self.assertNotIn('MODEL_PROVIDER', environment)
+
+    def test_knowledge_opt_in_is_project_bound_and_does_not_change_provider(self):
+        module = load_entrypoint()
+        with mock.patch.object(module.lads_session.shutil, 'which', return_value='codex'):
+            default = module.lads_session.command()
+            enabled = module.lads_session.command(knowledge_project='devteam')
+            with self.assertRaises(ValueError):
+                module.lads_session.command(knowledge_project='unknown')
+        self.assertFalse(any('mcp_servers.lads_knowledge=' in x for x in default))
+        setting = next(x for x in enabled if x.startswith('mcp_servers.lads_knowledge='))
+        self.assertIn('get_known_issues', setting)
+        self.assertIn('devteam', setting)
+        self.assertFalse(any('model_provider=' in x or x.startswith('model=') for x in enabled))
+
+    def test_project_hooks_are_not_duplicated_by_default(self):
+        module = load_entrypoint()
+        with mock.patch.object(module.lads_session.shutil, 'which', return_value='codex'):
+            default = module.lads_session.command()
+            fallback = module.lads_session.command(legacy_inline_hooks=True)
+        self.assertFalse(any(x.startswith('hooks=') for x in default))
+        self.assertEqual(1, sum(x.startswith('hooks=') for x in fallback))
+
     def test_import_does_not_start_a_model_process(self):
         with mock.patch("subprocess.Popen") as start:
             load_entrypoint()
