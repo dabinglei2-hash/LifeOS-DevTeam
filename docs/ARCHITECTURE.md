@@ -6,7 +6,7 @@ config/project-registry.json 固定两个 project_id、namespace、canonical ori
 
 正常注册任务使用 scripts/lads_project_flow.py RUN --project lifeos|devteam --task-file ... --base D:/CODEX --workspace D:/CODEX/LADS-Workspace。它在读密钥前扫描两个来源，准备独立受限 RPC 执行器和 v3 跨仓库 QA broker。Builder 用精确白名单独立 worktree；Scanner/Reviewer/QA 逐次通过只读权限预检。只读 QA 执行固定四命令核验密封回执，实际测试由无凭据 broker 在私有合成副本运行。候选/配套来源、HEAD、原始命令/输出、报告及组合文件均哈希绑定。产品业务实物只进入私有测试环境，不进入 DevTeam Git。
 
-主控 MAIN-ACK、ACCEPT、文档和知识回执继续复用 scripts/lads_stage3.py。scripts/lads_github.py 显式 --repository 只能选择两个 canonical 仓库；授权、origin、QA 仓库必须相同，DevTeam 拒绝旧 v2 合同。精确暂存、独立审批、CI、原生 Auto-merge、保护和合并后知识回执仍强制；尚未执行本轮远端源码迁移，不宣称已启用新链路。
+主控 MAIN-ACK、ACCEPT、文档和知识回执继续复用 scripts/lads_stage3.py。scripts/lads_github.py 显式 --repository 只能选择两个 canonical 仓库；授权、origin、QA 仓库必须相同，DevTeam 拒绝旧 v2 合同。精确暂存、独立审批、CI、原生 Auto-merge、保护和合并后知识回执仍强制；产品 PR #5（162ab01f）与研发 PR #1（63d9278f）已在各自新仓库完成源码迁移、真实 CI 与原生 Auto-merge；该验收不包括新根原生 Hook/MCP 或生产部署，详细证据和限制见迁移报告。
 
 四角色配置/提示词位于 .codex/agents、.codex/worker-prompts，七项 Skills 位于 .agents/skills。主控 GPT/OpenAI 不变；子进程各用专属 Windows 用户环境变量和 DeepSeek profile。禁止原生 GPT 子 Agent 和静默回退。Hooks 使用 LADS_PYTHON 和 scripts/lads_session.py，保留正常信任；新根原生自动触发尚未重验。MCP 仍默认禁用。
 
