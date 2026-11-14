@@ -1,0 +1,72 @@
+{
+  "status": "MAIN_EXECUTED_PENDING_INDEPENDENT_REVIEW",
+  "source_head": "c06473ee5a0d118be79f01224025e0400d65262d",
+  "native": {
+    "status": "PASS",
+    "actual_provider": "openai",
+    "actual_model": "gpt-6-astra",
+    "command_exits": [
+      7
+    ],
+    "completed_hook_events": [
+      {
+        "eventName": "preToolUse",
+        "status": "completed"
+      },
+      {
+        "eventName": "postToolUse",
+        "status": "completed"
+      },
+      {
+        "eventName": "stop",
+        "status": "blocked"
+      },
+      {
+        "eventName": "stop",
+        "status": "completed"
+      }
+    ],
+    "stop_requests": 1,
+    "gate_still_closed": true
+  },
+  "deepseek_mcp": {
+    "status": "PASS",
+    "role": "scanner",
+    "provider": "lifeos_deepseek",
+    "model": "deepseek-flash",
+    "permissions": {
+      "role": "scanner",
+      "sandbox_mode": "read-only",
+      "network": "restricted",
+      "approval": "never",
+      "writable_roots": []
+    },
+    "actual_mcp_calls": [
+      {
+        "server": "lads_knowledge",
+        "tool": "search_project_knowledge",
+        "status": "completed",
+        "is_error": null
+      }
+    ],
+    "main_config_unchanged": true,
+    "database_bytes_unchanged": true
+  },
+  "unit_mcp_tests": 13,
+  "sites": {
+    "status": "LOCAL_STATIC_BUILD_VERIFIED",
+    "product_commit": "814b55ca27bf3d6bdd82762dc371f3fede650b0b",
+    "site_project_id": "appgprj_6ae0c18393c0819198cc9248b4799cf9",
+    "existing_site_version": 1,
+    "audience": "public",
+    "owner_verified": true,
+    "site_changed": false,
+    "deployment_authorized": false,
+    "deployment_performed": false,
+    "public_files": 59,
+    "pwa_version": "2026.10.27-aab1225f7cf6b10c",
+    "server_proxy_in_artifact": false,
+    "browser_records_copied": false
+  },
+  "secrets_or_raw_logs_included": false
+}

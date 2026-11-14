@@ -1,0 +1,72 @@
+{
+  "schema": "lads-post-migration-prepared-scope-v1",
+  "source_head": "c06473ee5a0d118be79f01224025e0400d65262d",
+  "main_authored": true,
+  "files": [
+    {
+      "path": "docs/POST_MIGRATION_ACCEPTANCE_20261114.md",
+      "sha256": "97b115d85e54279931c27245f2b28b0ed5f77a9eec86403bed0e2bfcedaed5c9"
+    },
+    {
+      "path": "docs/POST_MIGRATION_TEST_EVIDENCE.json",
+      "sha256": "a659cdff462fcb799b2eb123a7a5571edbe37d0108bc1cc8693b5a44bfca2a47"
+    },
+    {
+      "path": "docs/RUNTIME_EXTERNALIZATION_PROPOSAL.md",
+      "sha256": "4ac93d3021d08a37cebaa77b40d6bd5b65cbad3735993e4650c8cfa064ba4383"
+    },
+    {
+      "path": "lads_knowledge/mcp_server.py",
+      "sha256": "19547be58ddf85988c9cd7a63c6f949282b12ecafa72fde7842ffc29c9bd5f1c"
+    },
+    {
+      "path": "scripts/lads_knowledge_mcp.py",
+      "sha256": "108847c913bb83b2ee51cb47b90b5ad1ffa4d1edee623ff516d5c97910f95c39"
+    },
+    {
+      "path": "tests/knowledge/test_mcp.py",
+      "sha256": "e037d83d6235288e1a19736da18fa593f1e981c82b3385b6ac30b0ed8c878ebd"
+    },
+    {
+      "path": "config/mcp-policy.json",
+      "sha256": "2af45e473e3fdce1c3c43faf62ddf546c697bee6937e478e3a6794f74672a1a9"
+    },
+    {
+      "path": "docs/ARCHITECTURE.md",
+      "sha256": "ab976722e2f07d71a92ed4e05d02028d3713cd44032a5f4e2724c62d8b8a766b"
+    },
+    {
+      "path": "docs/CODEX_TECH_STACK_AND_TOOLING.md",
+      "sha256": "54a4809e1038ee61a2d75421693daee7708482430e0c28faaf751fad0ad847ed"
+    },
+    {
+      "path": "docs/CODEX_WORK_ENVIRONMENT.md",
+      "sha256": "460231bdb84a5e9d496a8131a2162c30d23d51a1e62adffeeeaedfe115489e21"
+    },
+    {
+      "path": "docs/DEVELOPMENT_PROGRESS.md",
+      "sha256": "ebbd9037e856f77e123fc65af10df5aaf8ee0ed87f4867bf9f14d4b53dae507a"
+    },
+    {
+      "path": "docs/STATUS.md",
+      "sha256": "dd45438aef8a722623fbe0e94e47e6a11f224a55f509f656ea31d06f9ffc4dc1"
+    },
+    {
+      "path": "scripts/lads_session.py",
+      "sha256": "6875c50984db5cc522cd3574b218e1bdb538028f8f78f7151730e458e6d32d1b"
+    },
+    {
+      "path": "tests/acceptance/lads-native-hooks.py",
+      "sha256": "45535ff0d108e93cb92c5528e8c7ba4e16a9abecdf6df00b80d99e9d55cc7696"
+    },
+    {
+      "path": "tests/automation/test_native_entrypoint.py",
+      "sha256": "a3500b4c5f57304db0a21d294894bd0c94cadad940c147aa2bcf5116ade094d3"
+    }
+  ],
+  "allowed_builder_change": [
+    "docs/POST_MIGRATION_ACK.md"
+  ],
+  "business_changes": false,
+  "deployment": false
+}

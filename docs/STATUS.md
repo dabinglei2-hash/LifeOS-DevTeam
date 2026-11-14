@@ -1,3 +1,7 @@
+## 2026-11-14 后续工程验收进行中
+
+新根原生Hook、Codex只读知识MCP及独立DeepSeek exec MCP已由主控实际验证；工程代码按独立QA/Reviewer/发布门禁交付，当前状态以本轮机器回执和Git历史为准。Sites已有站点owner/public与HTTP200核实，隔离59文件构建通过，本轮只检查、不更新线上。失败/旧运行根保留，外移尚为兼容提案。详见[本轮记录](POST_MIGRATION_ACCEPTANCE_20261114.md)。
+
 # 当前状态（双仓库源代码迁移已验真）
 
 LifeOS 与 LifeOS-DevTeam 均为 dabinglei2-hash 的独立 Public 仓库。产品 PR #5（162ab01f）、研发 PR #1（63d9278f）已真实 CI 和原生 Auto-merge，独立四角色、MAIN-ACK、文档/知识与幂等门禁经过实际验证。原项目的 HEAD、工作区和 index 保留；业务数据及格式不变。

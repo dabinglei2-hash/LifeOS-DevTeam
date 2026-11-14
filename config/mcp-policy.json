@@ -1,6 +1,6 @@
 {
   "schema": "lads-mcp-policy-v1",
   "enabled": false,
-  "reason": "DeepSeek MCP tool compatibility and credential-free isolation have not been independently accepted.",
+  "reason": "Production workers keep MCP disabled by default. Explicit controller sessions may opt into the bounded project-readonly knowledge adapter; actual Codex transport and isolated deepseek-flash exec compatibility were verified on 2026-11-14. No credentials or writable tools are configured here.",
   "servers": {}
 }
