@@ -4356,7 +4356,16 @@ class ReleaseController:
                 return latest
             if latest.state != "open" or latest.mergeable is False:
                 raise ReleaseBlocked("PR closed without a verified merge or has conflicts")
-            latest, context = self._verify_prerequisites(authorization, state)
+            try:
+                latest, context = self._verify_prerequisites(authorization, state)
+            except ReleaseConflict:
+                # REST may observe OPEN just before GraphQL observes MERGED.
+                # Only the original exact native proof can reconcile that race.
+                latest = self._get_pr(authorization, pr.number)
+                if not latest.merged:
+                    raise
+                self._verify_native_merge_evidence(authorization, gate, state, latest)
+                return latest
             self._verify_auto_merge_snapshot(latest, context, state)
             workflow_state, workflows = self._check_snapshot(
                 authorization,
@@ -4446,6 +4455,25 @@ class ReleaseController:
                 state="AWAITING_APPROVAL",
                 reason="CONTROLLER_STATUS_CONFLICT",
             )
+
+    def _finish_reconciled_merge(
+        self, authorization: ReleaseAuthorization, gate: LocalGate,
+        state: dict[str, Any], pr: PullRequest, *, project_id: str,
+        knowledge_store: KnowledgeStore | None,
+    ) -> dict[str, Any]:
+        """Recover only a genuinely merged, exactly bound native release."""
+        self._verify_native_merge_evidence(authorization, gate, state, pr)
+        self._branch_protection(authorization)
+        ci_state, _checks = self._check_snapshot(authorization, state["commit_sha"])
+        if ci_state != "SUCCESS":
+            raise ReleaseBlocked("Merged PR required checks are not successful")
+        merge_sha = self._verify_merge(authorization, pr)
+        if not isinstance(knowledge_store, KnowledgeStore):
+            return self._save(state, "MERGED_INDEX_PENDING", merge_commit_sha=merge_sha, pr_url=pr.url)
+        return self._postmerge_knowledge(
+            authorization, gate, state, project_id=project_id,
+            knowledge_store=knowledge_store, merge_commit_sha=merge_sha, pr_url=pr.url,
+        )
 
     def publish(
         self,
@@ -4544,6 +4572,19 @@ class ReleaseController:
                 "commands": list(gate.bundle.expected_commands),
                 "worker_roles": [item["role"] for item in gate.bundle.worker_stage_receipts],
             })
+            # After an interrupted successful merge the remote base has moved
+            # legitimately. Reconcile its pinned PR before the pre-merge drift
+            # check, without changing the authorization or creating a new PR.
+            number = state.get("pr_number")
+            if number is not None:
+                if type(number) is not int or number <= 0:
+                    raise ReleaseConflict("Release state has an invalid pinned PR number")
+                prior = self._get_pr(authorization, number)
+                if prior.merged:
+                    return self._finish_reconciled_merge(
+                        authorization, gate, state, prior,
+                        project_id=project_id, knowledge_store=knowledge_store,
+                    )
             self._fetch_base(authorization, state)
             self._capture(authorization, state)
             commit = self._stage_and_commit(authorization, state)
