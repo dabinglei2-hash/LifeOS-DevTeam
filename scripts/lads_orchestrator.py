@@ -43,6 +43,9 @@ def _load_runtime():
 
 
 RUNTIME = _load_runtime()
+_monitor_spec = importlib.util.spec_from_file_location("lads_monitor_bridge", ROOT / "control_center" / "bridge.py")
+MONITOR = importlib.util.module_from_spec(_monitor_spec)
+_monitor_spec.loader.exec_module(MONITOR)
 UUID_RE = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$")
 SHA_RE = re.compile(r"^[0-9a-f]{64}$")
 STATES = (
@@ -677,7 +680,10 @@ def kill_tree(process):
 
 def run_process(argv, cwd, prompt, timeout, environment=None):
     try:
-        value = RUNTIME.run_process(argv, cwd, prompt, timeout, environment, maximum=MAX_CAPTURE)
+        options = {"maximum": MAX_CAPTURE}
+        if MONITOR.observer() is not None:
+            options["observer"] = MONITOR.observer()
+        value = RUNTIME.run_process(argv, cwd, prompt, timeout, environment, **options)
     except RUNTIME.ExecutionBoundaryError as error:
         raise Blocked(str(error), failure_kind="execution_environment") from error
     return ProcessResult(value.exit_code, value.stdout, value.stderr, value.timed_out, value.bounded_output)
@@ -1505,6 +1511,7 @@ class RealWorker:
         snapshots = None
         proof = None
         process = None
+        monitor = None
         command_argv = []
         try:
             require(self._run_root is not None and self._repo is not None,
@@ -1554,9 +1561,14 @@ class RealWorker:
             ]
             if secretlike(" ".join(command_argv)):
                 raise Blocked(f"{role} secret-like argv refused")
-            process = run_process(command_argv, workspace, prompt, timeout, environment)
+            monitor = MONITOR.WorkerMonitor(task_id, role, self.helper.MODELS[role],
+                "lifeos" if self._repo.name == "LifeOS-Product" else "devteam")
+            with monitor:
+                process = run_process(command_argv, workspace, prompt, timeout, environment)
             self._main_config_guard(role, "after_process")
         except OSError as cause:
+            if monitor:
+                monitor.emit("AGENT_ERROR", {"error_code": "PROCESS_START_ERROR"})
             error = Blocked(f"{role} process could not start: {type(cause).__name__}")
             try:
                 self._main_config_guard(role, "exit_oserror")
@@ -1577,6 +1589,8 @@ class RealWorker:
                 self._main_config_guard(role, "exit_error")
             except Blocked as main_error:
                 error = Blocked(f"{error}; {main_error}")
+            if monitor:
+                monitor.emit("AGENT_ERROR", {"error_code": "WORKER_BOUNDARY_ERROR"})
             snapshots_after, drift = self._configuration_guard(role, workspace, snapshots) if snapshots is not None else (None, [])
             if drift:
                 combined = Blocked(f"{error}; configuration drift detected: {', '.join(drift)}")
@@ -1607,6 +1621,9 @@ class RealWorker:
             if process.bounded_output:
                 raise Blocked(f"{role} output exceeded the capture bound", failure_kind="output_limit")
             report, commands, usage = parse_event_stream(process.stdout)
+            monitor.emit("MODEL_USAGE", {"input_tokens": usage.get("input_tokens"),
+                "output_tokens": usage.get("output_tokens"), "cached_tokens": usage.get("cached_input_tokens"),
+                "usage_source": "codex-turn.completed"})
             try:
                 report = validate_report(report, task_id, role, source_digest, test_commands, commands)
             except Blocked as error:
@@ -1620,6 +1637,7 @@ class RealWorker:
                 self._main_config_guard(role, "exit_validation")
             except Blocked as main_error:
                 error = Blocked(f"{error}; {main_error}")
+            monitor.emit("AGENT_ERROR", {"error_code": getattr(error, "failure_kind", "validation")})
             _, drift = self._configuration_guard(role, workspace, snapshots)
             if drift:
                 error = Blocked(f"{error}; configuration drift detected: {', '.join(drift)}")
@@ -1802,6 +1820,11 @@ class Orchestrator:
     def emit(self, event, **fields):
         record = {"at": now(), "event": event, **fields}
         append_event(managed_path(self.run_root, "events.jsonl"), record)
+        if self.state and self.state.get("task_id"):
+            MONITOR.send(task_id=self.state["task_id"], role="gpt-controller", event_type="TASK_EVENT",
+                project="lifeos" if Path(self.state.get("repo", "devteam")).name == "LifeOS-Product" else "devteam",
+                payload={"state": self.state.get("state"), "status": event,
+                    **{k: fields[k] for k in ("state", "role", "phase", "status") if k in fields}})
         self.log(f"{event} {fields.get('state', fields.get('role', ''))}".strip())
 
     def write_state(self):

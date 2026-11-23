@@ -1,5 +1,11 @@
 
 
+## 2026-11-23 Control Center 后续阶段（当前）
+
+主控按用户明确授权实现八页面、独立监控SQLite schema1、Worker真实进程心跳/过期/异常、outbox与SSE、任务/usage/QA/GitHub/知识库/设置。产品和原工程库schema不变。最终299自动化（含21新监控）通过，此前51知识库+89 LADS通过；构建、23项API/三尺寸浏览器、合成四角色心跳与16条SSE/备份恢复通过。后修复测试进程误上报：必须RUN --monitor显式host上下文；旧事件保留但不当可信在线数据。中断旧候选9925eb41，保留计数，需新审查。主控测试不是独立QA，合成进程不是DeepSeek。
+
+独立完整基线审查、QA、真实DeepSeek监控与GitHub交付待本轮机器回执。GPT桌面心跳和账单未知，真机未测；无提交/推送/部署成功宣称。范围、备份、证据及限制见[监控记录](CONTROL_CENTER_MONITORING.md)。以下历史保留。
+
 ## 2026-11-23 LADS Control Center 第一阶段
 
 本轮仅建立 React/TypeScript 总览与 FastAPI 本机只读接口，沿用既有工程知识库。首轮独立 Builder 在任务5f992691-77b9-403b-9dd7-c2a59c11a8b8中产出初稿，因超时及临时Git树被门禁BLOCKED，原记录保留、不追认为通过。主控在待审候选补齐基础依赖、Windows资源MIME类型与venv重定向器子PID归属校验，加入回归测试。主控已实际完成隔离构建/API/浏览器及Windows启停测试；独立审查、正式QA、提交和PR以本轮后续机器回执为准。Agent心跳、事件入库、实际费用、远程GitHub监控、完整知识库页及第二至八阶段未完成。产品代码、个人数据及原工程库结构均未改变。

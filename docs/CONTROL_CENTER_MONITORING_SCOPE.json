@@ -1,0 +1,103 @@
+{
+  "date": "2026-11-23",
+  "source_head": "f5ca59e2ec7f2c51e2905e9c7a804a5d5ef8deef",
+  "stages": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "protocol": "explicit-host-v2",
+  "attribution": "User-authorized main implementation; independent QA/review pending",
+  "files": [
+    {
+      "path": "config/control-center-pricing.json",
+      "sha256": "bfdd5f2d44b1d8d334b7390a1fc6d53bbbbf247952dc46f1c10ad264a231b1f5"
+    },
+    {
+      "path": "control_center/api.py",
+      "sha256": "457f3e2558432bdff5f674b8fad386262a64140607d3d457711062491e4ecd13"
+    },
+    {
+      "path": "control_center/bridge.py",
+      "sha256": "0b0ef86cce87c4bbf351e21efad089227b9f8551a4d75dbf25892b93c59afb72"
+    },
+    {
+      "path": "control_center/frontend/src/App.tsx",
+      "sha256": "6724ee9dd6add3f3c2eb8c4d2b632cccbf67342f97b508c99b55c68dcbc12329"
+    },
+    {
+      "path": "control_center/frontend/src/styles.css",
+      "sha256": "5c4014950430a3c69bd54002b1f5034b4813405a0d25b081d9e398e840be10f5"
+    },
+    {
+      "path": "control_center/monitor.py",
+      "sha256": "9e12fb2069957de4fa8e813b6c6a46dd5e28ebe90cb27c1fede075a32916809f"
+    },
+    {
+      "path": "control_center/storage_cli.py",
+      "sha256": "32f31575aff75fca40028c487edcaeae6f7c6b8320330d456ba15833149a9625"
+    },
+    {
+      "path": "control_center/store.py",
+      "sha256": "2904c127b6c5758373c2c4a059ebc257c778d8b01115fc0a693fbfd5dea1494e"
+    },
+    {
+      "path": "docs/ARCHITECTURE.md",
+      "sha256": "b1f0738ccc4244d898fbca4e3efcb729c421d37c3af3706838ad9cc1747f8e8f"
+    },
+    {
+      "path": "docs/CHANGELOG.md",
+      "sha256": "9049b4f585294bf7679ceb58ba0473892eb4b4bcba266a0da944a9ff9140fd66"
+    },
+    {
+      "path": "docs/CONTROL_CENTER.md",
+      "sha256": "0b5da708b71e26207d0518e146b0a7e2e481cd11934784be3b71cbcbb8f6b261"
+    },
+    {
+      "path": "docs/CONTROL_CENTER_MONITORING.md",
+      "sha256": "f16d0e67ff4cea0ca0b5b489514ee34963da4c593e5c81914d4817c419464f2d"
+    },
+    {
+      "path": "docs/DATA_MODEL.md",
+      "sha256": "77db57ccc751cd7a93a18d0b0aa1c809316f3ab180927d6c5dcadbef9f3eae37"
+    },
+    {
+      "path": "docs/DEVELOPMENT_PROGRESS.md",
+      "sha256": "958296668483a191eb02d08f7291679583b86d0d578291d53317002ec9b3f1a3"
+    },
+    {
+      "path": "docs/PRD.md",
+      "sha256": "d63688339e418a9766bef03af15da4a328eca459e5731b5a10600bc24a05a80a"
+    },
+    {
+      "path": "docs/STATUS.md",
+      "sha256": "7193eb30eeba9ab4f1545d5537aa31186ac9c86a23df7a97de14767c3a3b48cb"
+    },
+    {
+      "path": "scripts/lads_orchestrator.py",
+      "sha256": "d366c8a44eadc4ba3d5746c08876ed606a5761a077bc282f5b8665ee263d250e"
+    },
+    {
+      "path": "scripts/lads_project_flow.py",
+      "sha256": "2848570543bda1712fcf25ba7fd7ab990c390d28abdc6e9ee49e533937cdfdda"
+    },
+    {
+      "path": "scripts/lads_runtime.py",
+      "sha256": "79f96fba480e493d68eff05eadf911882e1ffa9e7da5bc789cf9a5b037ab1223"
+    },
+    {
+      "path": "tests/automation/test_control_center_monitor.py",
+      "sha256": "b44b45c203647501674476323a845d27ba63c797726f73f1cd0fc6eb832cd530"
+    },
+    {
+      "path": "tests/browser/control-center.cjs",
+      "sha256": "29052e5039f439128c6aeddb3c3f2f97cd86e5b75a518ab47f36d3ddf9b07cd1"
+    }
+  ],
+  "backup": "D:/CODEX/LADS-Workspace/backups/20261123-183604-control-center-completion/manifest.json",
+  "preserved_cancelled_task": "9925eb41-6e3c-4706-abe4-820ddf6b6915"
+}

@@ -7,14 +7,19 @@ import os
 import re
 import stat
 import uuid
+import asyncio
+import json
+from contextlib import asynccontextmanager
+from datetime import datetime
 from pathlib import Path, PurePosixPath
 from typing import Any
 from urllib.parse import urlsplit
 
 from fastapi import FastAPI, HTTPException, Query, Request
-from fastapi.responses import FileResponse, JSONResponse, Response
+from fastapi.responses import FileResponse, JSONResponse, Response, StreamingResponse
 
 from .telemetry import ROOT, SnapshotService
+from .monitor import MonitorService, SECTIONS
 
 logger = logging.getLogger(__name__)
 SERVICE_ID = "lads-control-center"
@@ -111,6 +116,7 @@ def create_app(
     frontend_dist: str | Path | None = None,
     port: int = 8765,
     instance_id: str | None = None,
+    monitor_service: Any | None = None,
 ) -> FastAPI:
     if type(port) is not int or not 1 <= port <= 65535:
         raise ValueError("Control Center port must be between 1 and 65535")
@@ -120,7 +126,18 @@ def create_app(
     selected_service = service or SnapshotService()
     dist = Path(frontend_dist) if frontend_dist is not None else DEFAULT_FRONTEND_DIST
 
+    @asynccontextmanager
+    async def lifespan(application):
+        monitor = monitor_service or MonitorService(selected_service)
+        application.state.monitor = monitor
+        monitor.start()
+        try:
+            yield
+        finally:
+            monitor.close()
+
     app = FastAPI(
+        lifespan=lifespan,
         title="LADS Control Center",
         docs_url=None,
         redoc_url=None,
@@ -177,10 +194,60 @@ def create_app(
             raise HTTPException(status_code=422, detail="Invalid project filter")
         try:
             payload = selected_service.snapshot(project=project)
+            monitor = getattr(app.state, "monitor", None)
+            if monitor:
+                observed = {item["agent_id"]: item for item in monitor.agents(project)["items"]}
+                for agent in payload["agents"]:
+                    live = observed.get(agent["id"])
+                    if live:
+                        agent["current_status"] = live["status"]
+                        agent["heartbeat_connected"] = live["sample"] is not None
+                        agent["status_note"] = live["note"]
+                payload["limitations"] = [line for line in payload["limitations"] if not line.startswith("Agent status is UNKNOWN because Phase 1")]
         except Exception as exc:
             logger.error("Control Center snapshot failed: %s", type(exc).__name__)
             return _generic_error(503, "CONTROL_DATA_UNAVAILABLE")
         return JSONResponse(content=payload)
+
+    @app.get("/api/sections/{section}")
+    def section_data(section: str, project: str = "all", q: str = Query(default="", max_length=160),
+                     task_id: uuid.UUID | None = None, agent: str = Query(default="", max_length=50),
+                     model: str = Query(default="", max_length=100), since: str = "", until: str = "",
+                     limit: int = Query(default=50, ge=1, le=100), offset: int = Query(default=0, ge=0, le=10000)) -> Any:
+        if section not in SECTIONS or project not in PROJECT_FILTERS:
+            raise HTTPException(422, "Invalid section or project")
+        for value in (since, until):
+            if value:
+                try:
+                    if len(value) > 40 or datetime.fromisoformat(value).tzinfo is None:
+                        raise ValueError()
+                except ValueError:
+                    raise HTTPException(422, "Timezone-aware dates required")
+        return app.state.monitor.section(section, project, q=q, task_id=str(task_id) if task_id else None,
+            agent=agent, model=model, since=since, until=until, limit=limit, offset=offset)
+
+    @app.get("/api/events")
+    async def event_stream(request: Request, project: str = "all", after: int = Query(default=0, ge=0)) -> Response:
+        if project not in PROJECT_FILTERS:
+            raise HTTPException(422, "Invalid project")
+        async def stream():
+            cursor = after
+            # Bounded connection; EventSource reconnects with Last-Event-ID.
+            last = request.headers.get("last-event-id", "")
+            if last.isdecimal() and len(last) < 18:
+                cursor = max(cursor, int(last))
+            for _ in range(300):
+                if await request.is_disconnected():
+                    return
+                rows = await asyncio.to_thread(app.state.monitor.store.rows, project=project, after=cursor, limit=100, descending=False, trusted_only=True)
+                if rows:
+                    for row in rows:
+                        cursor = row["sequence"]
+                        yield f"id: {cursor}\nevent: telemetry\ndata: {json.dumps(row, ensure_ascii=False)}\n\n"
+                else:
+                    yield ": heartbeat\n\n"
+                await asyncio.sleep(2)
+        return StreamingResponse(stream(), media_type="text/event-stream", headers={"X-Accel-Buffering": "no"})
 
     @app.get("/")
     def index() -> Response:
