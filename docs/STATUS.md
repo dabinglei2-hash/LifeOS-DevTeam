@@ -1,3 +1,10 @@
+
+
+## 2026-11-23 LADS Control Center 第一阶段
+
+本轮仅建立 React/TypeScript 总览与 FastAPI 本机只读接口，沿用既有工程知识库。首轮独立 Builder 在任务5f992691-77b9-403b-9dd7-c2a59c11a8b8中产出初稿，因超时及临时Git树被门禁BLOCKED，原记录保留、不追认为通过。主控在待审候选补齐基础依赖、Windows资源MIME类型与venv重定向器子PID归属校验，加入回归测试。主控已实际完成隔离构建/API/浏览器及Windows启停测试；独立审查、正式QA、提交和PR以本轮后续机器回执为准。Agent心跳、事件入库、实际费用、远程GitHub监控、完整知识库页及第二至八阶段未完成。产品代码、个人数据及原工程库结构均未改变。
+
+当前启动入口见[控制中心说明](CONTROL_CENTER.md)。依赖、构建、日志与PID文件仅放LADS-Workspace/control-center-data；第一阶段不创建新数据库，也不执行数据库迁移。
 ## 2026-11-15 发布恢复竞态修复
 
 研发PR #4实际原生合并、精确源码/CI/保护已核验；发现并保留OPEN到MERGED竞态和普通resume的base误判。主控已完成最小恢复代码与九项合成回归；完整独立验收及本轮远端结果以机器回执为准，不改产品数据或部署。详见[恢复记录](RELEASE_RECOVERY_20261115.md)。
