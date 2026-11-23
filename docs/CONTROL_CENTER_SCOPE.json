@@ -1,0 +1,112 @@
+{
+  "date": "2026-11-23",
+  "source_head": "2a90194c5da48c1d45b219ff924ce266868c348c",
+  "stage": 1,
+  "attribution": "DeepSeek initial draft; main Windows MIME, dependency, child-PID ownership, tests and docs fixes",
+  "files": [
+    {
+      "path": "control_center/__init__.py",
+      "sha256": "ad6ce778ae4bd93f6a23cf15f83b2660ed29e5e0490c945190ffa116f822be29"
+    },
+    {
+      "path": "control_center/telemetry.py",
+      "sha256": "ff10cb7e9dc9978add6fe7257ecce6e7c7777260b4e31f5b947f2bf138d084b7"
+    },
+    {
+      "path": "control_center/api.py",
+      "sha256": "39a742340141150dcfd9bb2ee3ea3207fbaddaa04871165006ec768695370d4f"
+    },
+    {
+      "path": "control_center/server.py",
+      "sha256": "377adc618c142361e0fa71fe4cc22b227a392c74014bed6fed28e33460b002ca"
+    },
+    {
+      "path": "control_center/manager.py",
+      "sha256": "a667fa74386f28f944ab45446b0f5fe0e48b6dbde79b16fd174af69cee7bbcb9"
+    },
+    {
+      "path": "control_center/frontend/index.html",
+      "sha256": "296585ded2cfc351763cca0ede329d4cc1c7fcc60348e92d7715054def0c723e"
+    },
+    {
+      "path": "control_center/frontend/tsconfig.json",
+      "sha256": "040269692ab1d081cfad9c2e8c00767ee3d753b32a0a13e822855d56b167a429"
+    },
+    {
+      "path": "control_center/frontend/vite.config.ts",
+      "sha256": "74a88820f30b178cdce369e2f17e6a68c928d08e56adeb5a085a52a9cc639c98"
+    },
+    {
+      "path": "control_center/frontend/src/main.tsx",
+      "sha256": "1d25f920a44d0b60e64681118790e10d2010711ac19e127f0ed2218852422957"
+    },
+    {
+      "path": "control_center/frontend/src/App.tsx",
+      "sha256": "48f08eb6e8c7553fc8d1d1ed71b48185f3c51ee1209b8746964f2b60d3508051"
+    },
+    {
+      "path": "control_center/frontend/src/styles.css",
+      "sha256": "8f53cacf4176253d9c74757bc51ca5c9de35b6f4200e006c2342035ecf2ae72f"
+    },
+    {
+      "path": "scripts/start-control-center.ps1",
+      "sha256": "3a52a956e8ea1975a08d9652fb8f5a10b151eeda415630ed11b440ae0818d50f"
+    },
+    {
+      "path": "scripts/stop-control-center.ps1",
+      "sha256": "740f60ded4d3aeec2ba404e5c1cb63fd182636db955fc8d78822980abdf4a3d5"
+    },
+    {
+      "path": "scripts/check-control-center.ps1",
+      "sha256": "f5d9783ca630afc10ce3abcaa6e0dcc9dfbc6b49e04382c7c10ea9be0fde7b6d"
+    },
+    {
+      "path": "tests/automation/test_control_center.py",
+      "sha256": "e9cab8fafde84f47fa1f8e86b82ee6476ae9084d41649730c47fa41e880310fd"
+    },
+    {
+      "path": "docs/CONTROL_CENTER.md",
+      "sha256": "4aab2ab32167efb9a95b529fe5c9ddf24a5de4f2b64074dc5202cc534b8939f0"
+    },
+    {
+      "path": "docs/PRD.md",
+      "sha256": "f9e54ca07fd831c605d8e3256a33e58d5324a840ced4e41612267a6456e21c18"
+    },
+    {
+      "path": "docs/ARCHITECTURE.md",
+      "sha256": "1306d9b836e44347668d5d746ccb82fa4bacf994a67cbcc02e27d6e5a3a36ae3"
+    },
+    {
+      "path": "docs/STATUS.md",
+      "sha256": "33e335c5c41dde679eb529eb572b38eb6ea64aa7dfb494b0d26cbd102dfe7edc"
+    },
+    {
+      "path": "docs/DEVELOPMENT_PROGRESS.md",
+      "sha256": "76996996884227a0775434384f03c763327899ecf4f9d3a9d7f9e5539354dc78"
+    },
+    {
+      "path": "docs/CHANGELOG.md",
+      "sha256": "8984cb9e1c70398ab3a67f291d29bb625cf2cf62742453bfdb2d5de56a122a14"
+    },
+    {
+      "path": "control_center/frontend/package.json",
+      "sha256": "add06bd7c16c1ad18b00b7f9eb2b451dddda96cc2d261068be8c12bbfbbf20d1"
+    },
+    {
+      "path": "control_center/frontend/package-lock.json",
+      "sha256": "f37aeea64c3be62526006948797978919a05c745cbf87ec85069343f98f94256"
+    },
+    {
+      "path": "requirements-control-center.txt",
+      "sha256": "0f3419083e8c4268dca76c3bb93df9c6eefbb86d9cbe68830b5e6a6cf22547ea"
+    }
+  ],
+  "main_ui_tests": 15,
+  "main_unit_tests": 11,
+  "independent_qa": false,
+  "failed_runs_preserved": [
+    "5f992691-77b9-403b-9dd7-c2a59c11a8b8",
+    "c73548a7-7b04-477b-9300-63fddbfbe8ba"
+  ],
+  "product_changes": false
+}
