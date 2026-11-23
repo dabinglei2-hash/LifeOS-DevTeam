@@ -18,6 +18,30 @@
   --shadow: 0 1px 2px rgb(0 0 0 / 3%), 0 10px 30px rgb(0 0 0 / 3%);
 }
 
+.monitor-page { display: grid; gap: 20px; }
+.monitor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 16px; }
+.monitor-card { min-width: 0; padding: 18px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface-soft); }
+.monitor-card header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.monitor-card h3 { overflow-wrap: anywhere; font-size: 15px; }
+.monitor-fields { margin: 12px 0; font-size: 13px; }
+.monitor-fields > div { display: grid; grid-template-columns: minmax(70px, .55fr) minmax(0, 1fr); gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.monitor-fields dt { color: var(--muted); }
+.monitor-fields dd { margin: 0; overflow-wrap: anywhere; }
+.monitor-filters { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 18px; }
+.monitor-filters label { display: grid; gap: 6px; font-size: 13px; flex: 1 1 170px; min-width: 0; }
+.monitor-filters input, .monitor-filters select { font: inherit; min-height: 44px; width: 100%; padding: 10px; border: 1px solid var(--line-strong); border-radius: 10px; background: white; }
+.monitor-filters input:focus-visible, .monitor-filters select:focus-visible { outline: 2px solid var(--ink); }
+.evidence { margin-top: 12px; font-size: 13px; }
+.evidence summary { min-height: 44px; cursor: pointer; display: flex; align-items: center; text-decoration: underline; }
+.evidence pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12px; padding: 12px; background: #f0f0f2; border-radius: 8px; max-height: 380px; overflow-y: auto; }
+.timeline-item { padding: 12px 0; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+.timeline-item p { margin: 8px 0 0; font-size: 13px; color: var(--muted); }
+.monitor-pagination { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 18px; flex-wrap: wrap; }
+.live-status { font-size: 12px; padding: 5px 8px; background: #eaeaed; border-radius: 7px; }
+.state-BUSY { background: #e0ece4; color: #28583b; }
+.state-ERROR { background: #f4e1e1; color: #862f2f; }
+.monitor-page a { color: var(--ink); overflow-wrap: anywhere; }
+
 * {
   box-sizing: border-box;
 }

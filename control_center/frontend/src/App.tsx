@@ -43,8 +43,8 @@ interface Agent {
   id: string;
   label: string;
   family: string;
-  current_status: "unknown";
-  heartbeat_connected: false;
+  current_status: string;
+  heartbeat_connected: boolean;
   status_note: string;
   historical_available: boolean;
   historical_model: string | null;
@@ -115,13 +115,13 @@ const PROJECT_OPTIONS: Array<{ value: ProjectFilter; label: string }> = [
 
 const NAV_ITEMS = [
   { label: "总览", icon: "overview", enabled: true },
-  { label: "Agent 状态", icon: "agents", enabled: false, phase: "Phase 2" },
-  { label: "任务流转", icon: "tasks", enabled: false, phase: "Phase 3" },
-  { label: "成本", icon: "tokens", enabled: false, phase: "Phase 4" },
-  { label: "QA", icon: "qa", enabled: false, phase: "Phase 5" },
-  { label: "GitHub", icon: "repo", enabled: false, phase: "Phase 6" },
-  { label: "知识库", icon: "knowledge", enabled: false, phase: "Phase 7" },
-  { label: "系统设置", icon: "alerts", enabled: false, phase: "后续" },
+  { label: "Agent 状态", icon: "agents", enabled: true },
+  { label: "任务流转", icon: "tasks", enabled: true },
+  { label: "成本", icon: "tokens", enabled: true },
+  { label: "QA", icon: "qa", enabled: true },
+  { label: "GitHub", icon: "repo", enabled: true },
+  { label: "知识库", icon: "knowledge", enabled: true },
+  { label: "系统设置", icon: "alerts", enabled: true },
 ] as const;
 
 const shanghaiTime = new Intl.DateTimeFormat("zh-CN", {
@@ -277,22 +277,20 @@ function Icon({ name, size = 19 }: { name: string; size?: number }) {
   }
 }
 
-function Navigation({ mobile = false }: { mobile?: boolean }) {
+function Navigation({ mobile = false, active, choose }: { mobile?: boolean; active: string; choose: (value: string) => void }) {
   return (
     <>
       {NAV_ITEMS.map((item) => (
         <button
-          className={`${mobile ? "mobile-nav-item" : "nav-item"} ${item.enabled ? "is-active" : ""}`}
+          className={`${mobile ? "mobile-nav-item" : "nav-item"} ${active === item.icon ? "is-active" : ""}`}
           type="button"
           key={item.label}
-          aria-current={item.enabled ? "page" : undefined}
-          aria-disabled={!item.enabled}
-          disabled={!item.enabled}
-          title={item.enabled ? item.label : `${item.label} · ${item.phase} 后续阶段`}
+          aria-current={active === item.icon ? "page" : undefined}
+          onClick={() => choose(item.icon)}
+          title={item.label}
         >
           <Icon name={item.icon} />
           <span>{item.label}</span>
-          {!item.enabled && <small>{item.phase}</small>}
         </button>
       ))}
     </>
@@ -369,10 +367,10 @@ function AgentCard({ agent }: { agent: Agent }) {
       </header>
       <div className="agent-status-row">
         <span className="status-dot" />
-        <strong>UNKNOWN</strong>
-        <span>heartbeat 未连接</span>
+        <strong>{agent.current_status.toUpperCase()}</strong>
+        <span>{agent.heartbeat_connected ? "已接收进程事件" : "等待可信心跳"}</span>
       </div>
-      <p className="agent-note">当前状态未知。{agent.status_note}</p>
+      <p className="agent-note">{agent.status_note}</p>
       <dl className="agent-history">
         <div>
           <dt>历史模型</dt>
@@ -713,7 +711,105 @@ function OverviewContent({ overview }: { overview: Overview }) {
   );
 }
 
+type MonitorRow = Record<string, any>;
+const SECTIONS: Record<string, string> = { agents: "agents", tasks: "tasks", tokens: "cost", qa: "qa", repo: "github", knowledge: "knowledge", alerts: "settings" };
+const TITLES: Record<string, string> = { agents: "Agent 运行状态", tasks: "任务与时间线", tokens: "Token 与成本", qa: "QA 与审查", repo: "GitHub 双仓库", knowledge: "工程知识库", alerts: "系统设置" };
+
+function Evidence({ value, label = "查看记录详情" }: { value: unknown; label?: string }) {
+  return <details className="evidence"><summary>{label}</summary><pre>{JSON.stringify(value, null, 2)}</pre></details>;
+}
+function SmallFields({ values }: { values: Record<string, unknown> }) {
+  return <dl className="monitor-fields">{Object.entries(values).map(([key, value]) => <div key={key}><dt>{key}</dt><dd>{value == null ? "UNKNOWN" : String(value)}</dd></div>)}</dl>;
+}
+
+function MonitorPage({ name, project, refreshKey }: { name: string; project: ProjectFilter; refreshKey: number }) {
+  const [data, setData] = useState<MonitorRow | null>(null);
+  const [error, setError] = useState(false);
+  const [query, setQuery] = useState("");
+  const [task, setTask] = useState("");
+  const [agent, setAgent] = useState("");
+  const [model, setModel] = useState("");
+  const [period, setPeriod] = useState("all");
+  const [offset, setOffset] = useState(0);
+  const [events, setEvents] = useState<MonitorRow[]>([]);
+  const [streamState, setStreamState] = useState("连接中");
+  const [tick, setTick] = useState(0);
+  const section = SECTIONS[name];
+  useEffect(() => { setTask(""); setOffset(0); setData(null); setEvents([]); }, [project, name]);
+  useEffect(() => {
+    const source = new EventSource(`/api/events?project=${project}`);
+    source.onopen = () => setStreamState("已连接");
+    source.onerror = () => setStreamState("重连中");
+    source.addEventListener("telemetry", (event) => {
+      try {
+        const row = JSON.parse((event as MessageEvent).data) as MonitorRow;
+        setEvents((old) => [row, ...old.filter((item) => item.event_id !== row.event_id)].slice(0, 30));
+      } catch { setStreamState("无效事件"); }
+    });
+    const timer = window.setInterval(() => setTick((value) => value + 1), 5_000);
+    return () => { source.close(); window.clearInterval(timer); };
+  }, [project]);
+  useEffect(() => {
+    const controller = new AbortController();
+    const params = new URLSearchParams({ project, q: query, agent, model, limit: "30", offset: String(offset) });
+    if (task) params.set("task_id", task);
+    if (period !== "all") {
+      const now = new Date();
+      // Shanghai calendar boundaries, independent of the browser timezone.
+      const shifted = new Date(now.getTime() + 8 * 3600_000);
+      const day = shifted.toISOString().slice(0, 10);
+      params.set("since", `${period === "month" ? `${day.slice(0, 7)}-01` : day}T00:00:00+08:00`);
+      params.set("until", now.toISOString());
+    }
+    void fetch(`/api/sections/${section}?${params}`, { signal: controller.signal, cache: "no-store" })
+      .then((response) => { if (!response.ok) throw new Error("Unavailable"); return response.json(); })
+      .then((value: MonitorRow) => { setData(value); setError(false); })
+      .catch((caught: unknown) => { if (!(caught instanceof DOMException && caught.name === "AbortError")) setError(true); });
+    return () => controller.abort();
+  }, [section, project, task, query, agent, model, period, offset, refreshKey, tick]);
+  const items: MonitorRow[] = data?.items ?? [];
+  return <div className="monitor-page">
+    <section className="panel">
+      <div className="panel-heading"><h2>{TITLES[name]}</h2><span className="mini-status">实时事件 · {streamState}</span></div>
+      {error && <p className="stale-banner" role="alert">本次刷新失败，已有快照可能过期。</p>}
+      {data?.errors?.length > 0 && <p role="alert">部分工程来源不可用；这些项目的数据没有计为零。</p>}
+      {(name === "knowledge" || name === "tokens") && <div className="monitor-filters">
+        {name === "knowledge" ? <label>知识关键词<input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索工程文档" maxLength={160} /></label> : <>
+          <label>Agent<select value={agent} onChange={(event) => { setAgent(event.target.value); setOffset(0); }}><option value="">全部</option>{["gpt-controller", "scanner", "reviewer", "builder", "qa-tester"].map((role) => <option key={role}>{role}</option>)}</select></label>
+          <label>模型<input value={model} onChange={(event) => { setModel(event.target.value); setOffset(0); }} placeholder="精确模型名称" maxLength={100} /></label>
+          <label>时间<select value={period} onChange={(event) => { setPeriod(event.target.value); setOffset(0); }}><option value="all">全部记录</option><option value="today">今天</option><option value="month">本月</option></select></label>
+          <label>任务 ID<input value={task} onChange={(event) => { setTask(event.target.value); setOffset(0); }} placeholder="完整 UUID" maxLength={36} /></label>
+        </>}
+      </div>}
+      {task && name === "tasks" && <button className="refresh-button" onClick={() => setTask("")}>返回任务列表</button>}
+      {!data && !error && <p role="status">正在读取真实工程来源…</p>}
+      {data && <p className="panel-note">{data.note ?? "来源：工程运行记录与现有只读接口"}</p>}
+      {name === "tokens" && data && <SmallFields values={{ "输入 Token（本页已知）": data.input_tokens_page, "输出 Token（本页已知）": data.output_tokens_page, "实际费用": data.cost_status, "价格配置": data.pricing?.status ?? (data.pricing?.prices?.length ? "已配置" : "未配置") }} />}
+      {name === "qa" && data && <SmallFields values={{ "测试运行记录": data.summary?.run_records, "通过": data.summary?.passed, "失败": data.summary?.failed, "其他状态": data.summary?.excluded, "通过率": data.summary?.pass_rate == null ? "UNKNOWN" : `${data.summary.pass_rate}%` }} />}
+      {data && !items.length && name !== "alerts" && <p>当前条件没有记录。</p>}
+      <div className="monitor-grid">{items.map((row, index) => <article className="monitor-card" key={row.id ?? row.agent_id ?? row.project ?? index}>
+        {name === "agents" && <><header><h3>{row.agent_id}</h3><strong className={`live-status state-${row.status}`}>{row.status}</strong></header><SmallFields values={{ Provider: row.provider, "模型": row.sample?.model_name ?? row.history?.model_name, "进程": row.sample?.process_id, "当前任务": row.status === "BUSY" ? row.sample?.task_id : null, "最近心跳/事件": row.sample?.timestamp, "并行工作进程": row.active_runs, "历史 API": row.api_connectivity }} /><p className="micro-note">{row.note}</p><Evidence value={row.sample ?? row.history} label="查看运行证据" /></>}
+        {name === "tasks" && <><h3>{row.requirement_summary || row.id}</h3><SmallFields values={{ "任务": row.id, "状态": row.lifecycle, "项目": row.project, Agent: row.assigned_agent, "优先级": row.priority, "更新": row.updated_at, PR: row.pr_ref, "测试": row.test_result, "审查": row.review_result }} /><button className="refresh-button" onClick={() => setTask(row.id)}>查看时间线</button><Evidence value={row} /></>}
+        {name === "tokens" && <><h3>{row.model_name}</h3><SmallFields values={{ Agent: row.role, "输入": row.input_tokens, "输出": row.output_tokens, "缓存": row.cached_tokens, "时间": row.created_at, "实际费用": row.cost_status, "估算 USD": row.estimated_cost ? `${row.estimated_cost.amount} · ESTIMATED` : "UNKNOWN", "来源": row.usage_source }} /><Evidence value={row} /></>}
+        {name === "qa" && <><header><h3>{row.test_name}</h3><strong>{row.status}</strong></header><SmallFields values={{ "项目": row.project, "开始": row.started_at, "结束": row.completed_at, "任务": row.task_id }} /><p>{row.summary || "没有附加摘要"}</p><Evidence value={row} label="查看测试证据与摘要" /></>}
+        {name === "repo" && <><header><h3>{row.repository}</h3><strong>{row.status}</strong></header>{row.snapshot ? <><SmallFields values={{ "来源": "GitHub API", "采样": row.snapshot.sampled_at, "默认分支": row.snapshot.data.defaultBranchRef?.name, "Commit SHA": row.snapshot.data.defaultBranchRef?.target?.oid, "最近 Push": row.snapshot.data.pushedAt, "CI": row.snapshot.data.defaultBranchRef?.target?.statusCheckRollup?.state, "PR 总数": row.snapshot.data.pullRequests?.totalCount, "允许原生自动合并": row.snapshot.data.autoMergeAllowed }} /><a href={row.snapshot.data.url} target="_blank" rel="noreferrer">在 GitHub 打开</a>{row.snapshot.data.pullRequests?.nodes?.map((pr: MonitorRow) => <div className="timeline-item" key={pr.number}><a href={pr.url} target="_blank" rel="noreferrer">#{pr.number} {pr.title}</a><p>{pr.state} · {pr.autoMergeRequest ? "已申请自动合并" : "没有待执行的自动合并"}</p></div>)}</> : <p>尚未取得远程快照，请检查 GitHub 连接。</p>}</>}
+        {name === "knowledge" && <><header><h3>{row.project}</h3><strong>{row.status}</strong></header><SmallFields values={{ "数据库": row.database, "迁移": row.migration, "表数": row.table_count, "有效知识": row.count, "索引": row.indexed_at, "备份文件时间": row.latest_backup, "检索实测": row.search_verified }} />{row.search?.items?.map((item: MonitorRow) => <details className="evidence" key={item.id}><summary>{item.title}</summary><p>{item.snippet}</p><SmallFields values={{ "来源": item.source_ref, Commit: item.observed_head }} /></details>)}{row.error_code && <p role="alert">读取失败：{row.error_code}</p>}</>}
+      </article>)}</div>
+      {name === "alerts" && data && <><SmallFields values={{ "后端": data.backend, "监听地址": data.listen, "数据库": data.database, "迁移版本": data.schema_version, "日志": data.log_directory, "监控": data.monitoring }} /><h3>独立密钥配置</h3><SmallFields values={Object.fromEntries(Object.entries(data.keys_configured ?? {}).map(([role, present]) => [role, present ? "已配置（未验证有效性）" : "未配置"]))} /><h3>系统异常</h3><Evidence value={data.system_events} label="查看最近脱敏错误代码" /></>}
+      {["tasks", "qa", "tokens"].includes(name) && data && !task && <div className="monitor-pagination"><button className="refresh-button" disabled={!offset} onClick={() => setOffset(Math.max(0, offset - 30))}>上一页</button><span>第 {offset / 30 + 1} 页 · 每项目最多30条</span><button className="refresh-button" disabled={items.length < 30} onClick={() => setOffset(offset + 30)}>下一页</button></div>}
+    </section>
+    {name === "tasks" && task && <section className="panel"><h2>任务时间线</h2>{[...(data?.events ?? []), ...(data?.historical_events ?? [])].map((row: MonitorRow, index) => <div className="timeline-item" key={row.event_id ?? row.id ?? index}><strong>{row.event_type}</strong><p>{row.timestamp ?? row.occurred_at} · {row.agent_id ?? row.project}</p>{row.payload && <Evidence value={row.payload} label="事件字段" />}</div>)}</section>}
+    {name === "qa" && data && <section className="panel"><h2>Reviewer 结论与待解决问题</h2>{data.reviews?.map((row: MonitorRow) => <div className="timeline-item" key={row.id}><strong>{row.review_result}</strong><p>{row.id} · {row.updated_at}</p>{row.error_reason && <p>{row.error_reason}</p>}</div>)}<Evidence value={data.issues} label="查看已记录问题" /></section>}
+    {name === "tokens" && data && <section className="panel"><h2>按日期、Agent 与模型汇总</h2><p>按上海自然日统计，应用当前筛选，最多200组。usage记录数不冒充供应商实际请求次数。</p><Evidence value={data.aggregates} label="查看每日用量与已知字段数量" /><h2>尚未与历史对账的实时用量</h2><p>单独显示，避免重复计算；不计为实际费用。</p><Evidence value={data.live_usage} label="查看 Worker 实际返回 usage" /></section>}
+    <section className="panel"><h2>实时工程事件</h2><p className="panel-note">SSE · 最近30条 · {streamState}。不展示提示词、原始终端日志或密钥。</p>{events.length ? events.map((event) => <div className="timeline-item" key={event.event_id}><strong>{event.agent_id} · {event.event_type}</strong><p>{event.timestamp} · {event.task_id}</p></div>) : <p>正在等待工程事件，没有生成模拟活动。</p>}</section>
+  </div>;
+}
+
 export default function App() {
+  const [page, setPage] = useState(() => Object.keys(SECTIONS).includes(location.hash.slice(1)) ? location.hash.slice(1) : "overview");
+  const [refreshKey, setRefreshKey] = useState(0);
+  const choosePage = (value: string) => { location.hash = value; setPage(value); };
+  useEffect(() => { const changed = () => setPage(Object.keys(SECTIONS).includes(location.hash.slice(1)) ? location.hash.slice(1) : "overview"); window.addEventListener("hashchange", changed); return () => window.removeEventListener("hashchange", changed); }, []);
   const [project, setProject] = useState<ProjectFilter>("all");
   const [overview, setOverview] = useState<Overview | null>(null);
   const [loading, setLoading] = useState(true);
@@ -830,7 +926,7 @@ export default function App() {
         </div>
         <p className="nav-caption">研发团队控制中心</p>
         <nav className="side-nav" aria-label="主导航">
-          <Navigation />
+          <Navigation active={page} choose={choosePage} />
         </nav>
         <div className="sidebar-note">
           <Icon name="shield" />
@@ -858,7 +954,7 @@ export default function App() {
       <div className="workspace">
         <header className="topbar">
           <div>
-            <p className="eyebrow">Stage 1 · functional overview</p>
+            <p className="eyebrow">Local engineering observability</p>
             <h1>
               LADS Control Center <span>/ 研发团队控制中心</span>
             </h1>
@@ -872,7 +968,7 @@ export default function App() {
             <button
               className="refresh-button"
               type="button"
-              onClick={() => void refresh(project, overview === null)}
+              onClick={() => { setRefreshKey((value) => value + 1); void refresh(project, overview === null); }}
               disabled={loading || refreshing}
               aria-label="刷新控制中心快照"
             >
@@ -885,7 +981,7 @@ export default function App() {
         </header>
 
         <nav className="mobile-nav" aria-label="移动端主导航">
-          <Navigation mobile />
+          <Navigation mobile active={page} choose={choosePage} />
         </nav>
 
         <section className="control-strip" aria-label="快照范围与状态">
@@ -913,7 +1009,7 @@ export default function App() {
         </section>
 
         <main>
-          {loading && overview === null ? (
+          {page !== "overview" ? <MonitorPage name={page} project={project} refreshKey={refreshKey} /> : loading && overview === null ? (
             <LoadingOverview />
           ) : error && overview === null ? (
             <ErrorPanel message={error} onRetry={() => void refresh(project, true)} />
@@ -932,7 +1028,7 @@ export default function App() {
 
         <footer className="footer-note">
           <span>Snapshot refresh · 15s</span>
-          <span>此轮询不是 Agent heartbeat。</span>
+          <span>只读监控 · Worker 5s心跳 · 20s过期</span>
           <span>Asia/Shanghai</span>
         </footer>
       </div>

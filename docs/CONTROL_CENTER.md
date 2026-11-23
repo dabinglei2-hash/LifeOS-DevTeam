@@ -1,5 +1,7 @@
 # LADS Control Center Stage 1
 
+> 下文是Stage1历史冻结记录。2026-11-23用户已授权主控继续阶段2–8，当前实现、接口、数据库与验收限制见[监控实施记录](CONTROL_CENTER_MONITORING.md)。旧“未实现”状态不覆盖新记录；发布仍须新独立回执。
+
 日期：2026-11-23。任务是只实现 Control Center Stage 1 的功能性总览，不声称完成八阶段路线图。状态必须分开理解：
 
 - 来源：DeepSeek Builder初稿，首轮任务因超时/临时Git树被BLOCKED；主控修复Windows MIME、基础依赖和venv子PID归属，所有失败记录保留。

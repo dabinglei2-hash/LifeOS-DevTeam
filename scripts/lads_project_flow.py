@@ -14,6 +14,7 @@ from lads_automation.rpc import CodexJsonRpcExecutor
 def main(argv=None):
  p=argparse.ArgumentParser(description=__doc__)
  p.add_argument('command',choices=('RUN',));p.add_argument('--project',choices=('lifeos','devteam'),required=True);p.add_argument('--task-file',type=Path,required=True);p.add_argument('--base',type=Path,default=ROOT.parent);p.add_argument('--workspace',type=Path);p.add_argument('--timeout',type=int,default=900);p.add_argument('--credential-source',choices=('env','windows-user'),default='env')
+ p.add_argument('--monitor', action='store_true', help='Opt in this real host run to local Control Center telemetry; never enable for unit tests')
  args=p.parse_args(argv)
  if not 30<=args.timeout<=3600:raise ValueError('Worker timeout outside bounds')
  registry=ProjectRegistry.load(ROOT/'config/project-registry.json',base=args.base,workspace=args.workspace or args.base/'LADS-Workspace')
@@ -35,7 +36,8 @@ def main(argv=None):
  executor=CodexJsonRpcExecutor(work_root=work,allowed_commands=commands,maximum_timeout=300,runtime_executables={'python':runtime})
  broker=SplitQABroker(executor=executor,work_root=work,kind=project.qa_profile,companion_root=other.root,timeout=300)
  flow=Stage3Orchestrator(worker=BASE.RealWorker(),broker=broker,unit_broker=broker,qa_commands=COMMANDS,timeout=args.timeout,log=lambda x:print(x,file=sys.stderr,flush=True))
- try:handoff=flow.run(manifest)
+ try:
+  with BASE.MONITOR.reporting(args.monitor):handoff=flow.run(manifest)
  finally:executor.terminate_all()
  summary={'task_id':handoff['task_id'],'task_status':handoff['task_status'],'candidate_sha256':handoff['candidate_sha256'],'repository':project.repository,'project_id':project.project_id,'run_root':str(flow.run_root),'private_qa_root':str(work),'source_head':handoff['source_head'],'reason':handoff.get('reason'),'publication':False}
  (work/'handoff-receipt.json').write_text(json.dumps(summary,indent=2),encoding='utf-8');print(json.dumps(summary,ensure_ascii=True));return 0 if handoff['task_status']=='AWAITING_MAIN_ACCEPTANCE' else 2

@@ -227,13 +227,22 @@ class ProcessResult:
     bounded_output: bool
 
 
-def run_process(argv, cwd, prompt, timeout, environment=None, *, maximum=8 * 1024 * 1024):
+def run_process(argv, cwd, prompt, timeout, environment=None, *, maximum=8 * 1024 * 1024, observer=None):
     if timeout <= 0 or maximum < 128:
         raise ValueError("Invalid process bounds")
     env = dict(os.environ if environment is None else environment)
     env.update(PYTHONIOENCODING="utf-8", PYTHONUTF8="1", PYTHONDONTWRITEBYTECODE="1")
     job = WindowsJob() if os.name == "nt" else None
     process, readers = None, []
+    heartbeat_stop = threading.Event()
+    heartbeat_thread = None
+    def notify(kind, details=None):
+        if observer is not None:
+            try:
+                observer(kind, process, details or {})
+            except Exception:
+                # Monitoring is advisory, never a permission or publication authority.
+                pass
     buffers = {name: _Tail(maximum) for name in ("stdout", "stderr")}
     try:
         process = subprocess.Popen(argv, cwd=str(cwd), env=env, stdin=subprocess.PIPE,
@@ -247,6 +256,15 @@ def run_process(argv, cwd, prompt, timeout, environment=None, *, maximum=8 * 102
                 process.kill()
                 process.wait(timeout=10)
                 raise
+        notify("started")
+        if observer is not None:
+            def heartbeat():
+                while not heartbeat_stop.wait(5):
+                    if process.poll() is not None:
+                        break
+                    notify("heartbeat")
+            heartbeat_thread = threading.Thread(target=heartbeat, daemon=True)
+            heartbeat_thread.start()
         def drain(stream, buffer):
             while chunk := stream.read(65536):
                 buffer.append(chunk)
@@ -281,9 +299,17 @@ def run_process(argv, cwd, prompt, timeout, environment=None, *, maximum=8 * 102
             reader.join(timeout=5)
         if any(reader.is_alive() for reader in readers):
             raise ExecutionBoundaryError("Owned process pipe reader did not finish")
+        notify("finished", {"exit_code": process.returncode, "timed_out": timed_out})
         return ProcessResult(process.returncode, buffers["stdout"].text(), buffers["stderr"].text(),
                              timed_out, any(b.total > maximum for b in buffers.values()))
+    except Exception:
+        if process:
+            notify("error")
+        raise
     finally:
+        heartbeat_stop.set()
+        if heartbeat_thread:
+            heartbeat_thread.join(timeout=2)
         if job:
             job.close()
         if process:

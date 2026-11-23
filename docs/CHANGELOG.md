@@ -1,5 +1,12 @@
 # 研发团队更新记录
 
+## 2026-11-23 — Control Center 后续实现（Unreleased）
+
+- 主控新增七个监控页、独立schema1/备份恢复、host进程心跳与事件outbox/SSE；复用现有LADS安全执行与工程知识检索。
+- 真实双仓库GitHub只读采样、任务/QA/审查/用量与价格估算规则；缺失账单/主脑心跳保持未知。
+- 修复Windows SQLite备份句柄释放及测试进程误上报；显式RUN --monitor且只信v2来源，旧记录保留。增加21项监控测试，最终299自动化通过；主控证据与独立交付待验分开。
+- 产品、旧知识schema、密钥、发布保护不变。见[实施记录](CONTROL_CENTER_MONITORING.md)。
+
 ## 2026-11-12 — 双仓库迁移候选
 
 拆分产品与 LADS 工程文件；建立独立本地根、最小权限工作流与知识命名空间。不修改业务数据或改写旧历史。发布和部署状态见 [迁移报告](DUAL_REPOSITORY_MIGRATION_REPORT.md)。
